@@ -47,7 +47,7 @@ int main(int argc, char** argv)
     }
 
     // Make sure allocated process matches topology
-    if (check_sum != comm_size) {
+    if (check_sum != comm_size - 1) {
         printf("\nIncompatible topology and tsunameter count\n");
         MPI_Abort(MPI_COMM_WORLD, 1);
     }
