@@ -3,6 +3,7 @@
 #include <stdlib.h> // Type conversion 
 #include <errno.h>  // ERROR CHECKING
 #include <limits.h> // INT LIMITS
+#include "tsunameter.h" // Tsunameter functions
 
 #define DIMENSIONS 2    // Tsunameter topology dimensions
 
@@ -11,9 +12,11 @@ int main(int argc, char** argv)
     int dims[DIMENSIONS];
     int comm_size;
     int comm_rank;
+    MPI_Comm comm;
+    int rc;
 
     // Initialize MPI
-    int rc = MPI_Init(&argc, &argv);
+    rc = MPI_Init(&argc, &argv);
     // Check MPI Init is successful
     if (rc != MPI_SUCCESS) {
         printf("\nCould not initialize MPI\n");fflush(stdout);
@@ -24,7 +27,7 @@ int main(int argc, char** argv)
 
     // Ensure tsunameter topology is given
     if (argc != DIMENSIONS + 1) {
-        printf("\nUsage: mpiexec -n <PROCESSES> main m n\n");
+        printf("\nUsage: mpirun -np <PROCESSES> main m n\n");
         MPI_Abort(MPI_COMM_WORLD, 1);
     }
 
@@ -52,6 +55,12 @@ int main(int argc, char** argv)
         MPI_Abort(MPI_COMM_WORLD, 1);
     }
     printf("Dimensions: %dx%d, Size: %d\n", dims[0], dims[1], comm_size);
+
+    // Virtual topology
+    int reorder = 0;
+    int period[DIMENSIONS] = {0};
+    print("%d%d", period[0], period[1]);
+    rc = MPI_Cart_create(MPI_COMM_WORLD, DIMENSIONS, dims, period, reorder, &comm);
 
     if (comm_rank == 0) {
         // TODO: Base Station logic
