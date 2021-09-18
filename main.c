@@ -11,7 +11,6 @@ int main(int argc, char** argv)
     int dims[DIMENSIONS];
     int comm_size;
     int comm_rank;
-    MPI_Status status;
 
     // Initialize MPI
     int rc = MPI_Init(&argc, &argv);
@@ -52,7 +51,7 @@ int main(int argc, char** argv)
         printf("\nIncompatible topology and tsunameter count\n");
         MPI_Abort(MPI_COMM_WORLD, 1);
     }
-    printf("Dimensions: %dx%d\n, Size: %d", dims[0], dims[1], comm_size);
+    printf("Dimensions: %dx%d, Size: %d\n", dims[0], dims[1], comm_size);
 
     if (comm_rank == 0) {
         // TODO: Base Station logic
