@@ -1,6 +1,6 @@
 #include <stdio.h>  // Printing
 #include <mpi.h>    // OpenMPI calls
-#include <stdlib.h> // Type conversion 
+#include <stdlib.h> // Type conversion
 #include <errno.h>  // ERROR CHECKING
 #include <limits.h> // INT LIMITS
 #include "tsunameter.h" // Tsunameter functions
@@ -56,11 +56,11 @@ int main(int argc, char** argv)
     }
     printf("Dimensions: %dx%d, Size: %d\n", dims[0], dims[1], comm_size);
 
-    // Virtual topology
-    int reorder = 0;
-    int period[DIMENSIONS] = {0};
-    print("%d%d", period[0], period[1]);
-    rc = MPI_Cart_create(MPI_COMM_WORLD, DIMENSIONS, dims, period, reorder, &comm);
+    // // Virtual topology
+    // int reorder = 0;
+    // int period[DIMENSIONS] = {0};
+    // printf("%d%d", period[0], period[1]);
+    // rc = MPI_Cart_create(MPI_COMM_WORLD, DIMENSIONS, dims, period, reorder, &comm);
 
     if (comm_rank == 0) {
         // TODO: Base Station logic
