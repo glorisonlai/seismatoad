@@ -22,7 +22,8 @@ int main(int argc, char** argv)
     int termination_flag = 0;
     MPI_Status termination_status;
     int rc;
-    srand(time(NULL));
+
+    srand(time(NULL));  // Seed random gen for tsunameters
 
     // Initialize MPI
     rc = MPI_Init(&argc, &argv);
@@ -84,11 +85,13 @@ int main(int argc, char** argv)
 
         while (!termination_flag) {
             MPI_Iprobe(0, TERMINATION_TAG, MPI_COMM_WORLD, &termination_flag, &termination_status);
-            printf("looping %d\n", termination_flag);
+            printf("Looping...\n");
             sleep(TSUNAMETER_POLL);
             float new_val = generate_float_val(100000.0);
             append_moving_avg(avg, new_val);
-            printf("hello, %lf\n", new_val);
+            time_t t = time(NULL);
+            struct tm tm = *localtime(&t);
+            printf("Time: %d-%02d-%02d %02d:%02d:%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
             printf("Size: %d, Average: %lf, Head: %lf, Tail: %lf\n\n",avg -> size, avg -> avg, avg -> queue_head -> value, avg -> queue_tail -> value);
         }
 
