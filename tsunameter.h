@@ -2,6 +2,9 @@
 #ifndef TSUNAMETER_H
 #define TSUNAMETER_H
 
+#include <stdbool.h>
+#include <mpi.h>
+
 typedef struct avg_el{
     float value;
     struct avg_el *next;
@@ -16,12 +19,23 @@ typedef struct moving_avg {
 } moving_avg;
 
 // Initialize moving average
-moving_avg* init_moving_avg(int);
+moving_avg* init_moving_avg(int max_size);
 
 // Append float to moving average and update average
-void append_moving_avg(moving_avg*, float);
+void append_moving_avg(moving_avg* avg, float val);
+
+// Get current average
+float get_moving_avg(moving_avg* avg);
 
 // Generate random float up to limit
-float generate_float_val(float);
+float generate_float_val(float limit);
+
+void get_rank_at_coord(int* dims, int n_dims, int* coord, int* rank);
+
+void get_coord_at_rank(int* dims, int n_dims, int rank, int* coord);
+
+bool coord_exists(int* dims, int n_dims, int* coord);
+
+int test_mpi_req(MPI_Request* request, int *flag, MPI_Status *status);
 
 #endif

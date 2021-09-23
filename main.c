@@ -12,16 +12,19 @@
 #define THRESHOLD 6000  // Tsunameter threshold
 #define TOLERANCE 100   // Tsunameter tolerance
 #define TSUNAMTER_WINDOW 10 // Tsunameter average window
-#define TSUNAMETER_POLL 10    // Tsunamter polling rate (s)
+#define TSUNAMETER_POLL 2    // Tsunamter polling rate (s)
 
 int main(int argc, char** argv)
 {
-    int dims[DIMENSIONS];
+    int tsunameter_dims[DIMENSIONS];
     int comm_size;
     int comm_rank;
-    int termination_flag = 0;
     MPI_Status termination_status;
     int rc;
+    int root = 0;
+
+    // Testing cart create
+    MPI_Comm new_comm;
 
     srand(time(NULL));  // Seed random gen for tsunameters
 
@@ -55,8 +58,8 @@ int main(int argc, char** argv)
         }
 
         // Fill in dimensions
-        dims[dim_index] = arg;
-        check_sum *= dims[dim_index];
+        tsunameter_dims[dim_index] = arg;
+        check_sum *= tsunameter_dims[dim_index];
     }
 
     // Make sure allocated process matches topology
@@ -64,31 +67,47 @@ int main(int argc, char** argv)
         printf("\nIncompatible topology and tsunameter count\n");fflush(stdout);
         MPI_Abort(MPI_COMM_WORLD, 1);
     }
-    printf("Dimensions: %dx%d, Size: %d\n", dims[0], dims[1], comm_size);
+    printf("Dimensions: %dx%d, Size: %d\n", tsunameter_dims[0], tsunameter_dims[1], comm_size);
 
-    // // Virtual topology
-    // TODO: Make virtual top
-    // int reorder = 0;
-    // int period[DIMENSIONS] = {0};
-    // printf("%d%d", period[0], period[1]);
-    // rc = MPI_Cart_create(MPI_COMM_WORLD, DIMENSIONS, dims, period, reorder, &comm);
-    if (comm_rank == 0) {
+    // Virtual topology
+    if (comm_rank == root) {
         // int blah = 0;
         // MPI_Request send_req;
-        // sleep(30);
-        // MPI_Isend(&blah, 1, MPI_INT, 1, TERMINATION_TAG, MPI_COMM_WORLD, &send_req);
+        // sleep(10);
+        // MPI_Ibcast(&blah, 1, MPI_INT, root, MPI_COMM_WORLD, &send_req);
         // TODO: Base Station logic
     } else {
+        // Instantiate moving average 
         printf("rank %d\n", comm_rank);
         moving_avg* avg = init_moving_avg(TSUNAMTER_WINDOW);
-        printf("Initialized avg, size: %d/max_size: %d\n", avg->size, avg->max_size);
 
-        while (!termination_flag) {
-            MPI_Iprobe(0, TERMINATION_TAG, MPI_COMM_WORLD, &termination_flag, &termination_status);
+        // Instantiate topology
+        int termination_flag = 0;
+        int coord[DIMENSIONS];
+        get_coord_at_rank(tsunameter_dims, DIMENSIONS, comm_rank, coord);
+
+        // Get array of neighbours
+
+        // Send receive for termination signal
+        int termination_buffer[1];
+        MPI_Request termination_req;
+        MPI_Ibcast(termination_buffer, 1, MPI_INT, root, MPI_COMM_WORLD, &termination_req);
+
+        // Check for termination signal
+        while (!test_mpi_req(&termination_req, &termination_flag, &termination_status)) {
+            printf("%d\n", termination_flag);
+            // Sample sea water height
             printf("Looping...\n");
             sleep(TSUNAMETER_POLL);
             float new_val = generate_float_val(100000.0);
             append_moving_avg(avg, new_val);
+
+            if (get_moving_avg(avg) > THRESHOLD) {
+                // Sample neighbours for average
+
+                // Send information to base station
+            }
+
             time_t t = time(NULL);
             struct tm tm = *localtime(&t);
             printf("Time: %d-%02d-%02d %02d:%02d:%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
@@ -96,7 +115,7 @@ int main(int argc, char** argv)
         }
 
         // Termination signal received
-        // Free avg? idk
+        // TODO: Free avg? idk
         printf("terminating...\n");
     }
 
