@@ -5,37 +5,50 @@
 #include <stdbool.h>
 #include <mpi.h>
 
-typedef struct avg_el{
+typedef struct avg_el
+{
     float value;
     struct avg_el *next;
 } avg_el;
 
-typedef struct moving_avg {
+typedef struct moving_avg
+{
     float avg;
     int max_size;
     int size;
-    avg_el* queue_head;
-    avg_el* queue_tail;
+    avg_el *queue_head;
+    avg_el *queue_tail;
 } moving_avg;
 
+typedef struct tsunameter_reading
+{
+    float avg;
+    int time;
+}
+
 // Initialize moving average
-moving_avg* init_moving_avg(int max_size);
+moving_avg *
+init_moving_avg(int max_size);
 
 // Append float to moving average and update average
-void append_moving_avg(moving_avg* avg, float val);
+void append_moving_avg(moving_avg *avg, float val);
 
 // Get current average
-float get_moving_avg(moving_avg* avg);
+float get_moving_avg(moving_avg *avg);
 
 // Generate random float up to limit
 float generate_float_val(float limit);
 
-void get_rank_at_coord(int* dims, int n_dims, int* coord, int* rank);
+void get_rank_at_coord(int *dims, int n_dims, int *coord, int *rank);
 
-void get_coord_at_rank(int* dims, int n_dims, int rank, int* coord);
+void get_coord_at_rank(int *dims, int n_dims, int rank, int *coord);
 
-bool coord_exists(int* dims, int n_dims, int* coord);
+bool coord_exists(int *dims, int n_dims, int *coord);
 
-int test_mpi_req(MPI_Request* request, int *flag, MPI_Status *status);
+int test_mpi_req(MPI_Request *request, int *flag, MPI_Status *status);
+
+int *get_neighbours(int rank, int rows, int cols);
+
+tsunameter_reading *instantiate_tsunameter_reading(float avg, time_t time);
 
 #endif
