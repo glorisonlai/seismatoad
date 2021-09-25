@@ -94,10 +94,9 @@ int test_mpi_req(MPI_Request *request, int *flag, MPI_Status *status)
 // Hack to get array of neighbours
 // Multiply by prime numbers, then check for division
 // If true, neighbour exists, and we add it to an arr
-// TODO: Make sure this is good?
-int *get_neighbours(int rank, int rows, int cols)
+void get_neighbours(int rank, int rows, int cols, int* neighbours, int* num_neighbours)
 {
-    int num_neighbours = 4;
+    *num_neighbours = 4;
     int check_sum = 1;
     // On top row
     if (rank < cols)
@@ -123,7 +122,7 @@ int *get_neighbours(int rank, int rows, int cols)
         num_neighbours -= 1;
         check_sum *= 7;
     }
-    int neighbours[num_neighbours];
+    neighbours = (int*) malloc(*num_neighbours * sizeof(int));
 
     int neighbour_pointer = 0;
     if (check_sum % 2 == 0)
@@ -143,7 +142,6 @@ int *get_neighbours(int rank, int rows, int cols)
     {
         neighbours[neighbour_pointer] = rank + 1;
     }
-    return neighbours;
 }
 
 tsunameter_reading *instantiate_tsunameter_reading(float avg, time_t time)
