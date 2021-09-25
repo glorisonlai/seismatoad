@@ -24,7 +24,7 @@ typedef struct tsunameter_reading
 {
     float avg;
     int time;
-}
+} tsunameter_reading;
 
 // Initialize moving average
 moving_avg *
