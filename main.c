@@ -82,7 +82,7 @@ int main(int argc, char **argv)
     // Create MPI datatype for struct tsunameter_reading
     // Source: https://www.codingame.com/playgrounds/349/introduction-to-mpi/custom-types---exercise
     MPI_Datatype mp_tsunameter_reading;
-    int block_length[2] = {1,1};    // {float, int}
+    int block_length[2] = {1, 1}; // {float, int}
     MPI_Aint block_displacement[2] = {offsetof(tsunameter_reading, avg), offsetof(tsunameter_reading, time)};
     MPI_Datatype types[2] = {MPI_FLOAT, MPI_INT};
 
@@ -202,7 +202,7 @@ int main(int argc, char **argv)
                         break;
                     }
                     endtime = MPI_Wtime();
-                } while (outcount < *num_neighbours || endtime - starttime < 10);   // Timeout after 10 seconds
+                } while (outcount < *num_neighbours || endtime - starttime < 10); // Timeout after 10 seconds
             }
         }
 

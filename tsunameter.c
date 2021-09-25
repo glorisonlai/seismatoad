@@ -94,7 +94,7 @@ int test_mpi_req(MPI_Request *request, int *flag, MPI_Status *status)
 // Hack to get array of neighbours
 // Multiply by prime numbers, then check for division
 // If true, neighbour exists, and we add it to an arr
-void get_neighbours(int rank, int rows, int cols, int* neighbours, int* num_neighbours)
+void get_neighbours(int rank, int rows, int cols, int *neighbours, int *num_neighbours)
 {
     *num_neighbours = 4;
     int check_sum = 1;
@@ -122,25 +122,28 @@ void get_neighbours(int rank, int rows, int cols, int* neighbours, int* num_neig
         num_neighbours -= 1;
         check_sum *= 7;
     }
-    neighbours = (int*) malloc(*num_neighbours * sizeof(int));
+    neighbours = (int *)malloc(*num_neighbours * sizeof(int));
 
     int neighbour_pointer = 0;
     if (check_sum % 2 == 0)
     {
-        neighbours[neighbour_pointer] = rank - cols;
+        neighbours[neighbour_pointer] = rank - cols + 1;
         neighbour_pointer += 1;
     }
     if (check_sum % 3 == 0)
     {
-        neighbours[neighbour_pointer] = rank + cols;
+        neighbours[neighbour_pointer] = rank + cols + 1;
+        neighbour_pointer += 1;
     }
     if (check_sum % 5 == 0)
     {
-        neighbours[neighbour_pointer] = rank - 1;
+        neighbours[neighbour_pointer] = rank - 1 + 1;
+        neighbour_pointer += 1;
     }
     if (check_sum % 7 == 0)
     {
-        neighbours[neighbour_pointer] = rank + 1;
+        neighbours[neighbour_pointer] = rank + 1 + 1;
+        neighbour_pointer += 1;
     }
 }
 
