@@ -4,6 +4,7 @@
 
 #include <stdbool.h>
 #include <mpi.h>
+#include <time.h>
 
 typedef struct avg_el
 {
@@ -47,7 +48,7 @@ bool coord_exists(int *dims, int n_dims, int *coord);
 
 int test_mpi_req(MPI_Request *request, int *flag, MPI_Status *status);
 
-int *get_neighbours(int rank, int rows, int cols);
+void get_neighbours(int rank, int rows, int cols, int* neighbours, int* num_neighbours);
 
 tsunameter_reading *instantiate_tsunameter_reading(float avg, time_t time);
 
