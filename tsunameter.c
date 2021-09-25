@@ -94,7 +94,6 @@ int test_mpi_req(MPI_Request *request, int *flag, MPI_Status *status)
 // Hack to get array of neighbours
 // Multiply by prime numbers, then check for division
 // If true, neighbour exists, and we add it to an arr
-// TODO: Make sure this is good?
 void get_neighbours(int rank, int rows, int cols, int* neighbours, int* num_neighbours)
 {
     *num_neighbours = 4;
