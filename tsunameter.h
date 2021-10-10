@@ -28,8 +28,7 @@ typedef struct tsunameter_reading
 } tsunameter_reading;
 
 // Initialize moving average
-moving_avg *
-init_moving_avg(int max_size);
+moving_avg *init_moving_avg(int max_size);
 
 // Append float to moving average and update average
 void append_moving_avg(moving_avg *avg, float val);
@@ -48,8 +47,8 @@ bool coord_exists(int *dims, int n_dims, int *coord);
 
 int test_mpi_req(MPI_Request *request, int *flag, MPI_Status *status);
 
-void get_neighbours(int rank, int rows, int cols, int* neighbours, int* num_neighbours);
+int* get_neighbours(MPI_Comm comm, int ndims);
 
-tsunameter_reading *instantiate_tsunameter_reading(float avg, time_t time);
+struct tsunameter_reading *instantiate_tsunameter_reading(float avg, time_t time);
 
 #endif

@@ -1,6 +1,7 @@
 // Tsunameter functions
 #include "tsunameter.h"
 
+#include <mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -79,59 +80,30 @@ int test_mpi_req(MPI_Request *request, int *flag, MPI_Status *status) {
     return *flag;
 }
 
-// Hack to get array of neighbours
-// Multiply by prime numbers, then check for division
-// If true, neighbour exists, and we add it to an arr
-void get_neighbours(int rank, int rows, int cols, int *neighbours,
-                    int *num_neighbours) {
-    *num_neighbours = 4;
-    int check_sum = 1;
-    printf("%d rank, %d\n", rank, check_sum);
-    // On top row
-    if (rank < cols) {
-        *num_neighbours -= 1;
-        check_sum *= 2;
+int* get_neighbours(MPI_Comm comm, int ndims) {
+    int pot_neighbours[2 * ndims];
+    int num_neighbours = 0;
+    int dir;
+    for (dir = 0; dir < ndims; dir++) {
+        MPI_Cart_shift(comm, dir, 1, &pot_neighbours[2 * dir], &pot_neighbours[2 * dir + 1]);
+        int i;
+        for (i = 0; i < 2; i++) {
+            if (pot_neighbours[2 *dir + i] >= 0) {
+                num_neighbours += 1;
+            }
+        }
     }
-    printf("%d rank, %d\n", rank, check_sum);
-    // On bottom row
-    if (rank >= (rows - 1) * cols) {
-        *num_neighbours -= 1;
-        check_sum *= 3;
-    }
-    printf("%d rank, %d\n", rank, check_sum);
-    // On left col
-    if (rank % cols == 0) {
-        *num_neighbours -= 1;
-        check_sum *= 5;
-    }
-    printf("%d rank, %d\n", rank, check_sum);
-    // On right col
-    if (rank % cols == cols - 1) {
-        *num_neighbours -= 1;
-        check_sum *= 7;
-    };
-    printf("%d rank, %d\n", rank, check_sum);
-    free(neighbours);
-    neighbours = (int *)malloc(*num_neighbours * sizeof(int));
 
-    int neighbour_pointer = 0;
-    if (check_sum % 2 != 0) {
-        neighbours[neighbour_pointer] = rank - cols + 1;
-        neighbour_pointer += 1;
+    int *neighbours = (int *) malloc(num_neighbours);
+    int i, nbr_ptr = 0;
+    for (i = 0; i < 2 * ndims; i++) {
+        if (pot_neighbours[i] >= 0) {
+            neighbours[nbr_ptr] = pot_neighbours[i];
+            nbr_ptr += 1;
+        }
     }
-    if (check_sum % 3 != 0) {
-        neighbours[neighbour_pointer] = rank + cols + 1;
-        neighbour_pointer += 1;
-    }
-    if (check_sum % 5 != 0) {
-        neighbours[neighbour_pointer] = rank - 1 + 1;
-        neighbour_pointer += 1;
-    }
-    if (check_sum % 7 != 0) {
-        neighbours[neighbour_pointer] = rank + 1 + 1;
-        neighbour_pointer += 1;
-    }
-    printf("%d, %d, %d\n", *num_neighbours, neighbour_pointer, neighbours[0]);
+
+    return neighbours;
 }
 
 tsunameter_reading *instantiate_tsunameter_reading(float avg, time_t time) {
