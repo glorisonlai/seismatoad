@@ -172,12 +172,11 @@ int main(int argc, char **argv) {
                          &comparison_status[nbr_i])) {
           struct tsunameter_reading *curr_reading =
               instantiate_tsunameter_reading(get_moving_avg(avg), curr_time);
-          float test_reading[] = {get_moving_avg(avg)};
 
           // Send information
-          printf("Rank %d Sending to %d with avg %f\n", base_rank,
-                 neighbours[nbr_i], test_reading[0]);
-          MPI_Send(test_reading, 1, MPI_FLOAT, neighbours[nbr_i], 0,
+          printf("Rank %d Sending to %d with avg %f, time %d\n", base_rank,
+                 neighbours[nbr_i], curr_reading->avg, curr_reading->time);
+          MPI_Send(curr_reading, 1, MPI_FLOAT, neighbours[nbr_i], 0,
                    tsunameter_comm);
           printf("Rank %d sent!\n", base_rank);
           free(curr_reading);
@@ -198,20 +197,17 @@ int main(int argc, char **argv) {
         MPI_Request send_reqs[num_neighbours], recv_reqs[num_neighbours];
         MPI_Status recv_status[num_neighbours];
         tsunameter_reading recv_buff[num_neighbours];
-        int send_buf[1];
+        int send_buf;
         int recv_flags[num_neighbours];
-
-        float test_recv_buff[num_neighbours];
-        MPI_Request test_reqs[num_neighbours];
 
         // Ping other tsunameters to send their averages, and post corresponding
         // receive
         for (int nbr_i = 0; nbr_i < num_neighbours; nbr_i++) {
-          MPI_Isend(send_buf, 1, MPI_INT, neighbours[nbr_i], 0, tsunameter_comm,
-                    &send_reqs[nbr_i]);
+          MPI_Isend(&send_buf, 1, MPI_INT, neighbours[nbr_i], 0,
+                    tsunameter_comm, &send_reqs[nbr_i]);
           printf("Rank %d sent to %d with tag %d\n", base_rank,
                  neighbours[nbr_i], 0);
-          MPI_Irecv(test_recv_buff, 1, MPI_FLOAT, neighbours[nbr_i], 0,
+          MPI_Irecv(&recv_buff[nbr_i], 1, MPI_FLOAT, neighbours[nbr_i], 0,
                     tsunameter_comm, &recv_reqs[nbr_i]);
         }
 
@@ -220,13 +216,35 @@ int main(int argc, char **argv) {
         while (MPI_Wtime() - starttime < 10) {
           // Repeatedly check for similar readings
           // TODO: Add comparison between process times
-          int similar_count = 0;
+          int similar_count = 0, in_count = 0;
           for (int nbr_i = 0; nbr_i < num_neighbours; nbr_i++) {
+            if (test_mpi_req(&comparison_reqs[nbr_i], &comparison_flag[nbr_i],
+                             &comparison_status[nbr_i])) {
+              struct tsunameter_reading *curr_reading =
+                  instantiate_tsunameter_reading(get_moving_avg(avg),
+                                                 curr_time);
+
+              // Send information
+              printf("Rank %d Sending to %d with avg %f, time %d\n", base_rank,
+                     neighbours[nbr_i], curr_reading->avg, curr_reading->time);
+              MPI_Send(curr_reading, 1, MPI_FLOAT, neighbours[nbr_i], 0,
+                       tsunameter_comm);
+              printf("Rank %d sent!\n", base_rank);
+              free(curr_reading);
+
+              // Reset comparison request
+              comparison_flag[nbr_i] = 0;
+              MPI_Irecv(comparison_buffer, 1, MPI_INT, neighbours[nbr_i], 0,
+                        tsunameter_comm, &comparison_reqs[nbr_i]);
+            }
+
             if (test_mpi_req(&recv_reqs[nbr_i], &recv_flags[nbr_i],
-                             &recv_status[nbr_i]) &&
-                fabsf(test_recv_buff[nbr_i]) - get_moving_avg(avg) <
-                    THRESHOLD) {
-              similar_count += 1;
+                             &recv_status[nbr_i])) {
+              in_count += 1;
+              if (fabsf(recv_buff[nbr_i].avg) - get_moving_avg(avg) <
+                  THRESHOLD) {
+                similar_count += 1;
+              }
             }
           }
 
@@ -242,11 +260,13 @@ int main(int argc, char **argv) {
             free(curr_reading);
             break;
           }
+          if (in_count == num_neighbours) {
+            break;
+          }
           sleep(1);
         }
 
         for (int nbr_i = 0; nbr_i < num_neighbours; nbr_i++) {
-          MPI_Cancel(&send_reqs[nbr_i]);
           MPI_Cancel(&recv_reqs[nbr_i]);
         }
 
