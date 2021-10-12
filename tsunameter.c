@@ -80,21 +80,21 @@ int test_mpi_req(MPI_Request *request, int *flag, MPI_Status *status) {
     return *flag;
 }
 
-int* get_neighbours(MPI_Comm comm, int ndims) {
+int* get_neighbours(MPI_Comm comm, int ndims, int *num_neighbours) {
+    *num_neighbours = 0;
     int pot_neighbours[2 * ndims];
-    int num_neighbours = 0;
     int dir;
     for (dir = 0; dir < ndims; dir++) {
         MPI_Cart_shift(comm, dir, 1, &pot_neighbours[2 * dir], &pot_neighbours[2 * dir + 1]);
         int i;
         for (i = 0; i < 2; i++) {
             if (pot_neighbours[2 *dir + i] >= 0) {
-                num_neighbours += 1;
+                *num_neighbours += 1;
             }
         }
     }
 
-    int *neighbours = (int *) malloc(num_neighbours);
+    int *neighbours = (int *) malloc(*num_neighbours);
     int i, nbr_ptr = 0;
     for (i = 0; i < 2 * ndims; i++) {
         if (pot_neighbours[i] >= 0) {
@@ -102,7 +102,6 @@ int* get_neighbours(MPI_Comm comm, int ndims) {
             nbr_ptr += 1;
         }
     }
-
     return neighbours;
 }
 

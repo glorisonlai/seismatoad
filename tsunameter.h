@@ -47,7 +47,7 @@ bool coord_exists(int *dims, int n_dims, int *coord);
 
 int test_mpi_req(MPI_Request *request, int *flag, MPI_Status *status);
 
-int* get_neighbours(MPI_Comm comm, int ndims);
+int* get_neighbours(MPI_Comm comm, int ndims, int *num_neighbours);
 
 struct tsunameter_reading *instantiate_tsunameter_reading(float avg, time_t time);
 

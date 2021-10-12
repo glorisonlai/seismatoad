@@ -128,9 +128,9 @@ int main(int argc, char **argv) {
         printf("rank %d\n", tsunameter_rank);
         moving_avg *avg = init_moving_avg(TSUNAMTER_WINDOW);
 
-        // Get array of neighbours
-        int *neighbours = get_neighbours(tsunameter_comm, DIMENSIONS);
-        int num_neighbours = (int)sizeof(*neighbours) / sizeof(int);
+        // // Get array of neighbours
+        int num_neighbours;
+        int *neighbours = get_neighbours(tsunameter_comm, DIMENSIONS, &num_neighbours);
         printf("rank %d: Neighbours: %d\n", tsunameter_rank, num_neighbours);
         for (int i = 0; i < num_neighbours; i++) {
             printf("  - %d\n", neighbours[i]);
@@ -279,6 +279,7 @@ int main(int argc, char **argv) {
                     tsunameter_rank, num_neighbours, endtime, starttime,
                     endtime - starttime, endtime - starttime < 5);
             }
+            
             sleep(TSUNAMETER_POLL);
         }
 

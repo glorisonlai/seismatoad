@@ -33,6 +33,9 @@ int main(int argc, char **argv) {
        case (0): {
            time_t curr_time = time(NULL);
            tsunameter_reading *send = instantiate_tsunameter_reading(1.2345, curr_time);
+           tsunameter_reading buf[1];
+           MPI_Request request;
+           MPI_Irecv(&buf[0], 1, mp_tsunameter_reading, 1, 0, MPI_COMM_WORLD, &request);
            sleep(5);
            printf("Sending %f, %d\n", send->avg, send->time);
            MPI_Send(send, 1, mp_tsunameter_reading, 1, 0, MPI_COMM_WORLD); 
