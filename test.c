@@ -33,20 +33,30 @@ int main(int argc, char **argv) {
        case (0): {
            time_t curr_time = time(NULL);
            tsunameter_reading *send = instantiate_tsunameter_reading(1.2345, curr_time);
+           sleep(5);
            printf("Sending %f, %d\n", send->avg, send->time);
-           MPI_Send(send, 1, mp_tsunameter_reading, 1, 0, MPI_COMM_WORLD);
+           MPI_Send(send, 1, mp_tsunameter_reading, 1, 0, MPI_COMM_WORLD); 
            break;
        } 
        case (1): {
-           tsunameter_reading buf[1];
-           MPI_Status status;
-           MPI_Recv(&buf, 1, mp_tsunameter_reading, 0, 0, MPI_COMM_WORLD, &status);
-           printf("Received %f, %d\n", buf[0].avg, buf[0].time);
-           break;
+            MPI_Status status;
+            MPI_Request request;
+            tsunameter_reading buf[1];
+            MPI_Irecv(&buf[0], 1, mp_tsunameter_reading, 0, 0, MPI_COMM_WORLD, &request);
+            int flag;
+            while (!test_mpi_req(&request, &flag, &status)){
+                printf("waiting...\n");
+                sleep(1);
+            }
+
+            printf("Received %f, %d\n", buf[0].avg, buf[0].time);
+            break;
        }
        case (2): {
-
-           break;
+            MPI_Request request;
+            tsunameter_reading buf[1];
+            MPI_Irecv(&buf[0], 1, mp_tsunameter_reading, 0, 0, MPI_COMM_WORLD, &request);
+            break;
        }
        default: {break;}
     }
