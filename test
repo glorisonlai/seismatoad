@@ -1,0 +1,12 @@
+#!/bin/zsh
+
+iterations=10
+threshold=$3
+rows=$1
+cols=$2
+
+outfile="output.txt"
+
+for ((n=0;n<$iterations;n++)); do {
+    ./run $rows $cols $threshold 4 >> $outfile; echo  >> $outfile;
+} done

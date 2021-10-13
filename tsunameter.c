@@ -75,10 +75,7 @@ bool coord_exists(int *dims, int n_dims, int *coord) {
     return exists;
 }
 
-int test_mpi_req(MPI_Request *request, int pls, int rank, int iter) {
-    if (pls) {
-        printf("Thing: %d, Rank %d, Iteration %d\n", pls, rank, iter);
-    }
+int test_mpi_req(MPI_Request *request) {
     int flag;
     MPI_Status status;
     MPI_Test(request, &flag, &status);
