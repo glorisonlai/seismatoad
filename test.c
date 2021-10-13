@@ -33,25 +33,29 @@ int main(int argc, char **argv) {
        case (0): {
            time_t curr_time = time(NULL);
            tsunameter_reading *send = instantiate_tsunameter_reading(1.2345, curr_time);
+           float test_send[1] = {1.0};
            tsunameter_reading buf[1];
            MPI_Request request;
-           MPI_Irecv(&buf[0], 1, mp_tsunameter_reading, 1, 0, MPI_COMM_WORLD, &request);
+        //    MPI_Irecv(&buf[0], 1, mp_tsunameter_reading, 1, 0, MPI_COMM_WORLD, &request);
            sleep(5);
            printf("Sending %f, %d\n", send->avg, send->time);
            MPI_Send(send, 1, mp_tsunameter_reading, 1, 0, MPI_COMM_WORLD); 
            break;
        } 
        case (1): {
-            MPI_Status status;
-            MPI_Request request;
+            MPI_Status status[1];
+            MPI_Request request[1];
             tsunameter_reading buf[1];
-            MPI_Irecv(&buf[0], 1, mp_tsunameter_reading, 0, 0, MPI_COMM_WORLD, &request);
+            float test_recv[2];
+            MPI_Irecv(&buf[0], 1, mp_tsunameter_reading, 0, 0, MPI_COMM_WORLD, &request[0]);
             int flag;
-            while (!test_mpi_req(&request, &flag, &status)){
+            while (!test_mpi_req(&request[0], &flag, &status)){
                 printf("waiting...\n");
                 sleep(1);
             }
-
+            // test_mpi_req(&request[0], &flag, &status);
+            // test_mpi_req(&request[0], &flag, &status);
+            test_mpi_req(&request[0], &flag, &status);
             printf("Received %f, %d\n", buf[0].avg, buf[0].time);
             break;
        }

@@ -14,7 +14,7 @@
 #define TERMINATION_TAG 0   // MPI Tag for termination
 #define THRESHOLD 6000      // Tsunameter threshold
 #define TOLERANCE 100       // Tsunameter tolerance
-#define TSUNAMTER_WINDOW 10 // Tsunameter average window
+#define TSUNAMTER_WINDOW 4 // Tsunameter average window
 #define TSUNAMETER_POLL 2   // Tsunamter polling rate (s)
 
 int main(int argc, char **argv) {
@@ -138,17 +138,13 @@ int main(int argc, char **argv) {
         printf("\n");
 
         // Send preliminary receive for termination signal
-        int termination_flag;
         int termination_buffer[1];
         MPI_Request termination_req;
-        MPI_Status termination_status;
         MPI_Ibcast(termination_buffer, 1, MPI_INT, root, MPI_COMM_WORLD,
                 &termination_req);
 
         // Send num_neighbour preliminary receives for compare signals
-        int comparison_flag[num_neighbours];
         MPI_Request comparison_reqs[num_neighbours];
-        MPI_Status comparison_status[num_neighbours];
         int comparison_buffer[num_neighbours];
         for (int nbr_i = 0; nbr_i < num_neighbours; nbr_i++) {
             MPI_Irecv(&comparison_buffer[nbr_i], 1, MPI_INT, neighbours[nbr_i], 2*tsunameter_rank,
@@ -156,9 +152,8 @@ int main(int argc, char **argv) {
         }
 
         // Check for termination signal
-        while (!test_mpi_req(&termination_req, &termination_flag,
-                            &termination_status)) {
-            // Sample sea water height
+        while (!test_mpi_req(&termination_req)) {
+            // Sample sea water height with random value and append to moving average
             printf("%d Looping...\n", tsunameter_rank);
             float new_val = generate_float_val(10000.0);
             append_moving_avg(avg, new_val);
@@ -170,8 +165,7 @@ int main(int argc, char **argv) {
             // Check if neighbours sent compare request signal
             printf("Rank: %d, Testing...\n", tsunameter_rank);
             for (int nbr_i = 0; nbr_i < num_neighbours; nbr_i++) {
-                if (test_mpi_req(&comparison_reqs[nbr_i], &comparison_flag[nbr_i],
-                                &comparison_status[nbr_i])) {
+                if (test_mpi_req(&comparison_reqs[nbr_i])) {
                     struct tsunameter_reading *curr_reading =
                         instantiate_tsunameter_reading(get_moving_avg(avg), curr_time);
 
@@ -196,10 +190,8 @@ int main(int argc, char **argv) {
 
                 // Sample neighbours for average
                 MPI_Request send_reqs[num_neighbours], recv_reqs[num_neighbours];
-                MPI_Status recv_status[num_neighbours];
                 tsunameter_reading recv_buff[num_neighbours];
                 int send_buf;
-                int recv_flags[num_neighbours];
 
                 // Ping other tsunameters to send their averages, and post corresponding
                 // receive
@@ -220,14 +212,15 @@ int main(int argc, char **argv) {
                     int similar_count = 0, in_count = 0;
                     for (int nbr_i = 0; nbr_i < num_neighbours; nbr_i++) {
                         // Continue checking if neighbours sent compare request
-                        if (test_mpi_req(&comparison_reqs[nbr_i], &comparison_flag[nbr_i],
-                                        &comparison_status[nbr_i])) {
+                        printf("Rank %d testing comparison in loop\n", tsunameter_rank);
+                        if (test_mpi_req(&comparison_reqs[nbr_i])) {
+
                             struct tsunameter_reading *curr_reading =
                                 instantiate_tsunameter_reading(get_moving_avg(avg),
                                                                 curr_time);
 
                             // Send information
-                            printf("Rank %d Sending to %d with avg %f, time %d\n", tsunameter_rank,
+                            printf("Rank %d Sending during wait loop to %d with avg %f, time %d\n", tsunameter_rank,
                                     neighbours[nbr_i], curr_reading->avg, curr_reading->time);
                             MPI_Send(curr_reading, 1, mp_tsunameter_reading, neighbours[nbr_i], 2*neighbours[nbr_i] + 1,
                                     tsunameter_comm);
@@ -235,13 +228,12 @@ int main(int argc, char **argv) {
                             free(curr_reading);
 
                             // Reset comparison request
-                            comparison_flag[nbr_i] = 0;
                             MPI_Irecv(comparison_buffer, 1, MPI_INT, neighbours[nbr_i], 2*tsunameter_rank,
                                         tsunameter_comm, &comparison_reqs[nbr_i]);
                         }
 
-                        if (test_mpi_req(&recv_reqs[nbr_i], &recv_flags[nbr_i],
-                                        &recv_status[nbr_i])) {
+                        printf("Rank %d testing receives in loop\n", tsunameter_rank);
+                        if (test_mpi_req(&recv_reqs[nbr_i])) {
                             in_count += 1;
                             if (fabsf(recv_buff[nbr_i].avg) - get_moving_avg(avg) <
                                 THRESHOLD) {
@@ -256,7 +248,6 @@ int main(int argc, char **argv) {
                         printf("Rank: %d sending to base station\n", tsunameter_rank);
                         tsunameter_reading *curr_reading =
                             instantiate_tsunameter_reading(get_moving_avg(avg), curr_time);
-                        float test_reading[] = {get_moving_avg(avg)};
                         MPI_Send(curr_reading, 1, mp_tsunameter_reading, root, 0,
                                 MPI_COMM_WORLD);
                         free(curr_reading);

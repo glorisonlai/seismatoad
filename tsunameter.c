@@ -75,9 +75,11 @@ bool coord_exists(int *dims, int n_dims, int *coord) {
     return exists;
 }
 
-int test_mpi_req(MPI_Request *request, int *flag, MPI_Status *status) {
-    MPI_Test(request, flag, status);
-    return *flag;
+int test_mpi_req(MPI_Request *request) {
+    int flag;
+    MPI_Status status;
+    MPI_Test(request, &flag, &status);
+    return flag;
 }
 
 int* get_neighbours(MPI_Comm comm, int ndims, int *num_neighbours) {
