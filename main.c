@@ -12,13 +12,14 @@
 
 #define DIMENSIONS 2        // Tsunameter topology dimensions
 #define TERMINATION_TAG 0   // MPI Tag for termination
-#define THRESHOLD 6000      // Tsunameter threshold
+#define MAX_READING 10000   // Max sample value
 #define TOLERANCE 100       // Tsunameter tolerance
 #define TSUNAMTER_WINDOW 4 // Tsunameter average window
 #define TSUNAMETER_POLL 2   // Tsunamter polling rate (s)
 
 int main(int argc, char **argv) {
     int tsunameter_dims[DIMENSIONS];
+    int tsunameter_threshold;
     int tsunameter_rank, num_tsunameters;
     int base_size;
     int base_rank;
@@ -38,9 +39,9 @@ int main(int argc, char **argv) {
     MPI_Comm_size(MPI_COMM_WORLD, &base_size);
 
     // Ensure tsunameter topology is given
-    if (argc != DIMENSIONS + 1) {
+    if (argc != DIMENSIONS + 3) {
         if (base_rank == root) {
-        printf("\nUsage: mpirun -np <PROCESSES> main m n\n");
+        printf("\nUsage: mpirun -np <PROCESSES> main m n threshold sentinel\n");
         fflush(stdout);
         MPI_Abort(MPI_COMM_WORLD, 1);
         }
@@ -56,13 +57,13 @@ int main(int argc, char **argv) {
     // Initialize topology from CL args
     errno = 0;
     int check_sum = 1;
-    for (int dim_index = 0; dim_index < DIMENSIONS; dim_index++) {
+    for (int dim_index = 0; dim_index < DIMENSIONS + 1; dim_index++) {
         char *p;
         long arg = strtol(argv[dim_index + 1], &p, 10); // Get argument index from 1
         if (errno != 0 || *p != '\0' || arg < INT_MIN || arg > INT_MAX) {
         // Handle type conversion error
         if (base_rank == root) {
-            printf("\nArgument error\n");
+            printf("\nError with dimension %d argument\n", dim_index + 1);
             fflush(stdout);
             MPI_Comm_free(&tsunameter_comm);
             MPI_Abort(MPI_COMM_WORLD, 1);
@@ -70,8 +71,19 @@ int main(int argc, char **argv) {
         }
 
         // Fill in dimensions
-        tsunameter_dims[dim_index] = arg;
-        check_sum *= tsunameter_dims[dim_index];
+        if (dim_index < DIMENSIONS) {
+            tsunameter_dims[dim_index] = arg;
+            check_sum *= tsunameter_dims[dim_index];
+        } else {
+            // Instantiate threshold
+            if ((arg < 0 || arg > MAX_READING) && base_rank == root) {
+                printf("\nError with threshold argument! (Must be betwee\n");
+                fflush(stdout);
+                MPI_Comm_free(&tsunameter_comm);
+                MPI_Abort(MPI_COMM_WORLD, 1);
+            }
+            tsunameter_threshold = arg;
+        }
     }
 
     printf("Dimensions: %dx%d, Size: %d\n", tsunameter_dims[0],
@@ -152,7 +164,7 @@ int main(int argc, char **argv) {
         }
 
         // Check for termination signal
-        while (!test_mpi_req(&termination_req)) {
+        while (!test_mpi_req(&termination_req,0,tsunameter_rank,-1)) {
             // Sample sea water height with random value and append to moving average
             printf("%d Looping...\n", tsunameter_rank);
             float new_val = generate_float_val(10000.0);
@@ -165,7 +177,7 @@ int main(int argc, char **argv) {
             // Check if neighbours sent compare request signal
             printf("Rank: %d, Testing...\n", tsunameter_rank);
             for (int nbr_i = 0; nbr_i < num_neighbours; nbr_i++) {
-                if (test_mpi_req(&comparison_reqs[nbr_i])) {
+                if (test_mpi_req(&comparison_reqs[nbr_i],0,tsunameter_rank,nbr_i)) {
                     struct tsunameter_reading *curr_reading =
                         instantiate_tsunameter_reading(get_moving_avg(avg), curr_time);
 
@@ -184,7 +196,7 @@ int main(int argc, char **argv) {
             }
 
             // Potential tsunami alert
-            if (get_moving_avg(avg) > THRESHOLD) {
+            if (get_moving_avg(avg) > tsunameter_threshold) {
                 printf("Rank: %d, Requesting comps\n", tsunameter_rank);
                 double starttime = MPI_Wtime();
 
@@ -213,8 +225,7 @@ int main(int argc, char **argv) {
                     for (int nbr_i = 0; nbr_i < num_neighbours; nbr_i++) {
                         // Continue checking if neighbours sent compare request
                         printf("Rank %d testing comparison in loop\n", tsunameter_rank);
-                        if (test_mpi_req(&comparison_reqs[nbr_i])) {
-
+                        if (test_mpi_req(&comparison_reqs[nbr_i], 2, tsunameter_rank, nbr_i)) {
                             struct tsunameter_reading *curr_reading =
                                 instantiate_tsunameter_reading(get_moving_avg(avg),
                                                                 curr_time);
@@ -233,10 +244,10 @@ int main(int argc, char **argv) {
                         }
 
                         printf("Rank %d testing receives in loop\n", tsunameter_rank);
-                        if (test_mpi_req(&recv_reqs[nbr_i])) {
+                        if (test_mpi_req(&recv_reqs[nbr_i], 1, tsunameter_rank, nbr_i)) {
                             in_count += 1;
                             if (fabsf(recv_buff[nbr_i].avg) - get_moving_avg(avg) <
-                                THRESHOLD) {
+                                tsunameter_threshold) {
                                 similar_count += 1;
                             }
                         }

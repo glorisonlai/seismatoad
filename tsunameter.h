@@ -45,7 +45,7 @@ void get_coord_at_rank(int *dims, int n_dims, int rank, int *coord);
 
 bool coord_exists(int *dims, int n_dims, int *coord);
 
-int test_mpi_req(MPI_Request *request);
+int test_mpi_req(MPI_Request *request, int pls, int rank, int iter);
 
 int* get_neighbours(MPI_Comm comm, int ndims, int *num_neighbours);
 

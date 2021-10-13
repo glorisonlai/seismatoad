@@ -1,0 +1,10 @@
+#!/bin/sh
+
+rows=$1
+cols=$2
+threshold=$3
+sentinel=$4
+
+processes=$(($rows*$cols+1))
+
+mpirun -np $processes build/main $rows $cols $3 $4
