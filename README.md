@@ -1,7 +1,7 @@
 # Seismatoad
 
 ## Compiling
-`make clean`
+`make`
 
 ## Running
 `run <ROWS> <COLS> [<THRESHOLD>] <SHUTDOWN-KEY>`
