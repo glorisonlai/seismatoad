@@ -20,6 +20,7 @@
 #define TOLERANCE 100       // Tsunameter tolerance
 #define TSUNAMTER_WINDOW 4 // Tsunameter average window
 #define TSUNAMETER_POLL 2   // Tsunamter polling rate (s)
+#define STORED_READINGS 20 // How many satellite readings to store
 
 /* Global Variables for POSIX Use */
 satellite_reading *satellite_readings;
@@ -172,7 +173,7 @@ int main(int argc, char **argv) {
         // First initialise a thread to simulate the altimeter
             //setup the satellite readings array first
         printf("Creating Satellite Thread\n");
-        int sat_records = 10;
+        int sat_records = STORED_READINGS;
         int sat_args[3] = {sat_records, tsunameter_dims[0], tsunameter_dims[1]}; 
         satellite_terminate = 0;
         satellite_readings = (satellite_reading*)malloc((sat_records) * sizeof(satellite_reading));
@@ -201,12 +202,13 @@ int main(int argc, char **argv) {
         pthread_create(&comms_tid, NULL, run_comms, NULL);
         
         
-        // Glorison Base temp code
+        /* Glorison Base temp code -> Moved to run_comms
         int blah = 0;
         MPI_Request send_req;
         sleep(TSUNAMETER_POLL * 10);
         printf("TERMINATING...\n");
         MPI_Ibcast(&blah, 1, MPI_INT, root, MPI_COMM_WORLD, &send_req);
+        */
         
         
         //********************** Base termination checking ********************
@@ -379,7 +381,7 @@ int main(int argc, char **argv) {
                     //printf("Rank: %d, Similar_count: %d\n", tsunameter_rank, similar_count);
                     // Send information to base station
                     if (similar_count >= 2) {
-                        //printf("Rank: %d sending to base station\n", tsunameter_rank);
+                        printf("Rank: %d sending to base station\n", tsunameter_rank);
                         tsunameter_reading *curr_reading =
                             instantiate_tsunameter_reading(get_moving_avg(avg), curr_time);
                         MPI_Send(curr_reading, 1, mp_tsunameter_reading, root, 0,
@@ -409,7 +411,7 @@ int main(int argc, char **argv) {
         free(neighbours);
 
         printf("%d terminating...\n", base_rank);
-    }
+    } // End of Tsunameter (else) code
 /*+++++++++++++++++++++++++++++++ CLEAN UP +++++++++++++++++++++++++++++++*/
     MPI_Comm_free(&tsunameter_comm);
     MPI_Finalize();
@@ -489,7 +491,15 @@ void* check_sentinel(void* arg){
 
 void* run_comms(void* arg){
     printf("Comms Thread Starting\n");
+    int blah = 0;
+    MPI_Request send_req;
+    sleep(TSUNAMETER_POLL * 10);
+    printf("TERMINATING...\n");
+    comms_terminate = 1;
+    MPI_Ibcast(&blah, 1, MPI_INT, 0, MPI_COMM_WORLD, &send_req);
     /*
+        
+        
         int count = 0;
         do {
             MPI_Recv();
@@ -516,7 +526,35 @@ void* run_comms(void* arg){
         }
         MPI_Broadcast("terminate");
         */
+    int data;
+    int sender_x, sender_y;
+    satellite_reading most_recent;
+    int max_time = 0;
+    
+    for (int i=0; i<STORED_READINGS; i++){
+        if (satellite_readings[i].xpos == sender_x && satellite_readings[i].ypos == sender_y){
+            if (satellite_readings[i].time > max_time){
+                most_recent = satellite_readings[i];
+                max_time = most_recent.time;
+            }
+        }
+    }
+    if (max_time == 0) { // Then it's a false reading, as nothing was found
+        printf("False Reading\n");
+    } else { // it's a valid reading
+        printf("Valid reading\n");
+    }
 }
+
+
+
+
+
+
+
+
+
+
 
 
 
