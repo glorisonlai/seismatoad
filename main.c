@@ -12,6 +12,7 @@
 #include <pthread.h> // posix
 
 #include "tsunameter.h" // Tsunameter functions
+#include "satellite.h" // Satellite Readings struct
 
 #define DIMENSIONS 2        // Tsunameter topology dimensions
 #define TERMINATION_TAG 0   // MPI Tag for termination
@@ -21,7 +22,7 @@
 #define TSUNAMETER_POLL 2   // Tsunamter polling rate (s)
 
 /* Global Variables for POSIX Use */
-int *satellite_readings;
+satellite_reading *satellite_readings;
 int satellite_terminate;
 pthread_mutex_t satellite_mutex;
 
@@ -171,10 +172,10 @@ int main(int argc, char **argv) {
         // First initialise a thread to simulate the altimeter
             //setup the satellite readings array first
         printf("Creating Satellite Thread\n");
-        int sat_records = 10, record_size = 4;
-        int sat_args[3] = {sat_records * record_size, tsunameter_dims[0], tsunameter_dims[1]}; 
+        int sat_records = 10;
+        int sat_args[3] = {sat_records, tsunameter_dims[0], tsunameter_dims[1]}; 
         satellite_terminate = 0;
-        satellite_readings = (int *)malloc((sat_records * record_size) * sizeof(int));
+        satellite_readings = (satellite_reading*)malloc((sat_records) * sizeof(satellite_reading));
         pthread_t satellite_tid;
         pthread_mutex_init(&satellite_mutex, NULL);
         pthread_create(&satellite_tid, NULL, run_satellite, &sat_args);
@@ -227,11 +228,17 @@ int main(int argc, char **argv) {
         //********************** Base Station Termination ********************
         // Output the state of the satellite readings at termination
         printf("Current State of satellite readings:\n");
+        /*
         for (int i=0; i<4*sat_records; i+=4){
             printf("Record %d: Time is %d, Xpos is %d, Ypos is %d, elevation is %d\n",
                 i/4, satellite_readings[i], satellite_readings[i + 1], satellite_readings[i + 2],
                 satellite_readings[i + 3]);
+        }*/
+        for (int i=0; i<sat_records; i++){
+            printf("Record %d: Time is %d, Xpos is %d, Ypos is %d, elevation is %f\n",
+                i, satellite_readings[i].time, satellite_readings[i].xpos, satellite_readings[i].ypos, satellite_readings[i].elevation);
         }
+        
         // terminate and clean up the altimeter
         pthread_join(satellite_tid, NULL);
         free(satellite_readings);
@@ -280,27 +287,27 @@ int main(int argc, char **argv) {
         // Check for termination signal
         while (!test_mpi_req(&termination_req)) {
             // Sample sea water height with random value and append to moving average
-            printf("%d Looping...\n", tsunameter_rank);
+            //printf("%d Looping...\n", tsunameter_rank);
             float new_val = generate_float_val(10000.0);
             append_moving_avg(avg, new_val);
-            printf("Rank: %d, new %f, Average: %f\n", tsunameter_rank, new_val,
-                    get_moving_avg(avg));
+            //printf("Rank: %d, new %f, Average: %f\n", tsunameter_rank, new_val,
+            //        get_moving_avg(avg));
 
             time_t curr_time = time(NULL);
 
             // Check if neighbours sent compare request signal
-            printf("Rank: %d, Testing...\n", tsunameter_rank);
+            //printf("Rank: %d, Testing...\n", tsunameter_rank);
             for (int nbr_i = 0; nbr_i < num_neighbours; nbr_i++) {
                 if (test_mpi_req(&comparison_reqs[nbr_i])) {
                     struct tsunameter_reading *curr_reading =
                         instantiate_tsunameter_reading(get_moving_avg(avg), curr_time);
 
                     // Send information
-                    printf("Rank %d Sending to %d with avg %f, time %d\n", tsunameter_rank,
-                            neighbours[nbr_i], curr_reading->avg, curr_reading->time);
+                    //printf("Rank %d Sending to %d with avg %f, time %d\n", tsunameter_rank,
+                    //       neighbours[nbr_i], curr_reading->avg, curr_reading->time);
                     MPI_Send(curr_reading, 1, mp_tsunameter_reading, neighbours[nbr_i], 2*neighbours[nbr_i] + 1,
                             tsunameter_comm);
-                    printf("Rank %d sent!\n", tsunameter_rank);
+                    //printf("Rank %d sent!\n", tsunameter_rank);
                     free(curr_reading);
 
                     // Reset comparison request
@@ -311,7 +318,7 @@ int main(int argc, char **argv) {
 
             // Potential tsunami alert
             if (get_moving_avg(avg) > tsunameter_threshold) {
-                printf("Rank: %d, Requesting comps\n", tsunameter_rank);
+                //printf("Rank: %d, Requesting comps\n", tsunameter_rank);
                 double starttime = MPI_Wtime();
 
                 // Sample neighbours for average
@@ -324,8 +331,8 @@ int main(int argc, char **argv) {
                 for (int nbr_i = 0; nbr_i < num_neighbours; nbr_i++) {
                     MPI_Isend(&send_buf, 1, MPI_INT, neighbours[nbr_i], 2*neighbours[nbr_i],
                                 tsunameter_comm, &send_reqs[nbr_i]);
-                    printf("Rank %d sent to %d with tag %d\n", tsunameter_rank,
-                            neighbours[nbr_i], 0);
+                    //printf("Rank %d sent to %d with tag %d\n", tsunameter_rank,
+                    //        neighbours[nbr_i], 0);
                     MPI_Irecv(&recv_buff[nbr_i], 1, mp_tsunameter_reading, neighbours[nbr_i], 2*tsunameter_rank + 1,
                                 tsunameter_comm, &recv_reqs[nbr_i]);
 
@@ -339,18 +346,18 @@ int main(int argc, char **argv) {
                     int similar_count = 0, in_count = 0;
                     for (int nbr_i = 0; nbr_i < num_neighbours; nbr_i++) {
                         // Continue checking if neighbours sent compare request
-                        printf("Rank %d testing comparison in loop\n", tsunameter_rank);
+                        //printf("Rank %d testing comparison in loop\n", tsunameter_rank);
                         if (test_mpi_req(&comparison_reqs[nbr_i])) {
                             struct tsunameter_reading *curr_reading =
                                 instantiate_tsunameter_reading(get_moving_avg(avg),
                                                                 curr_time);
 
                             // Send information
-                            printf("Rank %d Sending during wait loop to %d with avg %f, time %d\n", tsunameter_rank,
-                                    neighbours[nbr_i], curr_reading->avg, curr_reading->time);
+                            //printf("Rank %d Sending during wait loop to %d with avg %f, time %d\n", tsunameter_rank,
+                            //        neighbours[nbr_i], curr_reading->avg, curr_reading->time);
                             MPI_Send(curr_reading, 1, mp_tsunameter_reading, neighbours[nbr_i], 2*neighbours[nbr_i] + 1,
                                     tsunameter_comm);
-                            printf("Rank %d sent!\n", tsunameter_rank);
+                            //printf("Rank %d sent!\n", tsunameter_rank);
                             free(curr_reading);
 
                             // Reset comparison request
@@ -358,10 +365,10 @@ int main(int argc, char **argv) {
                                         tsunameter_comm, &comparison_reqs[nbr_i]);
                         }
 
-                        printf("Rank %d testing receives in loop\n", tsunameter_rank);
+                        //printf("Rank %d testing receives in loop\n", tsunameter_rank);
                         if (test_mpi_req(&recv_reqs[nbr_i])) {
                             in_count += 1;
-                            printf("Rank %d Received avg: %f, time: %d from %d\n", tsunameter_rank, recv_buff[nbr_i].avg, recv_buff[nbr_i].time, neighbours[nbr_i]);
+                            //printf("Rank %d Received avg: %f, time: %d from %d\n", tsunameter_rank, recv_buff[nbr_i].avg, recv_buff[nbr_i].time, neighbours[nbr_i]);
                             if (fabsf(recv_buff[nbr_i].avg) - get_moving_avg(avg) <
                                 tsunameter_threshold) {
                                 similar_count += 1;
@@ -369,10 +376,10 @@ int main(int argc, char **argv) {
                         }
                     }
 
-                    printf("Rank: %d, Similar_count: %d\n", tsunameter_rank, similar_count);
+                    //printf("Rank: %d, Similar_count: %d\n", tsunameter_rank, similar_count);
                     // Send information to base station
                     if (similar_count >= 2) {
-                        printf("Rank: %d sending to base station\n", tsunameter_rank);
+                        //printf("Rank: %d sending to base station\n", tsunameter_rank);
                         tsunameter_reading *curr_reading =
                             instantiate_tsunameter_reading(get_moving_avg(avg), curr_time);
                         MPI_Send(curr_reading, 1, mp_tsunameter_reading, root, 0,
@@ -388,10 +395,10 @@ int main(int argc, char **argv) {
                 }
 
                 double endtime = MPI_Wtime();
-                printf("%d finished checking,  < %d num_neighours, time = %f - %f = "
-                    "%f < %d\n",
-                    tsunameter_rank, num_neighbours, endtime, starttime,
-                    endtime - starttime, endtime - starttime < 5);
+                //printf("%d finished checking,  < %d num_neighours, time = %f - %f = "
+                    //"%f < %d\n",
+                    //tsunameter_rank, num_neighbours, endtime, starttime,
+                    //endtime - starttime, endtime - starttime < 5);
             }
             
             sleep(TSUNAMETER_POLL);
@@ -406,6 +413,7 @@ int main(int argc, char **argv) {
 /*+++++++++++++++++++++++++++++++ CLEAN UP +++++++++++++++++++++++++++++++*/
     MPI_Comm_free(&tsunameter_comm);
     MPI_Finalize();
+    return 0;
 }
 
 
@@ -428,16 +436,16 @@ void* run_satellite(void* args){
         xpos = rand() % width;
         ypos = rand() % height;
         elevation = (rand() % 1000) + 6000;
-        last_access = (last_access + 4) % size;
-
+        
         // Implement some quick Mutex here to make sure we avoid race conditions
         pthread_mutex_lock(&satellite_mutex);
-        satellite_readings[last_access] = time(NULL);
-        satellite_readings[last_access + 1] = xpos;
-        satellite_readings[last_access + 2] = ypos;
-        satellite_readings[last_access + 3] = elevation;
+        satellite_readings[last_access].time = time(NULL);
+        satellite_readings[last_access].xpos = xpos;
+        satellite_readings[last_access].ypos = ypos;
+        satellite_readings[last_access].elevation = elevation;
         // Release mutex lock.
         pthread_mutex_unlock(&satellite_mutex);
+        last_access = last_access + 1 % size;
         
     } while (satellite_terminate == 0);
     printf("Satellite Thread terminating\n");
