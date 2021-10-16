@@ -15,6 +15,3 @@ $(BUILDDIR):
 	mkdir -p $@
 
 .PHONY: main
-
-clean:
-	rm -f ./*.o
