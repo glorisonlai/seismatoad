@@ -2,7 +2,6 @@
 #ifndef TSUNAMETER_H
 #define TSUNAMETER_H
 
-#include <stdbool.h>
 #include <mpi.h>
 #include <time.h>
 
@@ -42,8 +41,6 @@ float generate_float_val(float limit);
 void get_rank_at_coord(int *dims, int n_dims, int *coord, int *rank);
 
 void get_coord_at_rank(int *dims, int n_dims, int rank, int *coord);
-
-bool coord_exists(int *dims, int n_dims, int *coord);
 
 int test_mpi_req(MPI_Request *request);
 

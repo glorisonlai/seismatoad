@@ -263,7 +263,7 @@ int main(int argc, char **argv) {
         printf("rank %d\n", tsunameter_rank);
         moving_avg *avg = init_moving_avg(TSUNAMTER_WINDOW);
 
-        // // Get array of neighbours
+        // Get array of neighbours
         int num_neighbours;
         int *neighbours = get_neighbours(tsunameter_comm, DIMENSIONS, &num_neighbours);
         printf("rank %d: Neighbours: %d\n", tsunameter_rank, num_neighbours);

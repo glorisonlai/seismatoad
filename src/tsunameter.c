@@ -1,10 +1,7 @@
 // Tsunameter functions
 #include "tsunameter.h"
 
-#include <mpi.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 
 moving_avg *init_moving_avg(int max_size) {
     moving_avg *avg = (moving_avg *)malloc(sizeof(moving_avg));
@@ -63,16 +60,6 @@ void get_coord_at_rank(int *dims, int n_dims, int rank, int *coord) {
         coord[dim_index] = (int)rank / dims[dim_index];
     }
     coord[n_dims - 1] = rank - coord[0] * dims[1];
-}
-
-bool coord_exists(int *dims, int n_dims, int *coord) {
-    int exists = true;
-    int dim_index;
-    for (dim_index = 0; dim_index < n_dims; dim_index++) {
-        exists = exists && coord[dim_index] >= 0 &&
-                 coord[dim_index] < dims[dim_index];
-    }
-    return exists;
 }
 
 int test_mpi_req(MPI_Request *request) {
