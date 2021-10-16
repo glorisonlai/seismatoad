@@ -656,7 +656,6 @@ void* run_comms(void* args){
         }
         sleep(TSUNAMETER_POLL);
     }
-    int i;
     for(i=0; i<size; i++){
         MPI_Cancel(&comparison_reqs[i]);
     } 
