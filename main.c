@@ -18,7 +18,7 @@
 #define TERMINATION_TAG 0   // MPI Tag for termination
 #define MAX_READING 10000   // Max sample value
 #define TOLERANCE 100       // Tsunameter tolerance
-#define TSUNAMTER_WINDOW 4 // Tsunameter average window
+#define TSUNAMTER_WINDOW 20 // Tsunameter average window
 #define TSUNAMETER_POLL 2   // Tsunamter polling rate (s)
 #define STORED_READINGS 20 // How many satellite readings to store
 
@@ -427,7 +427,7 @@ void* run_satellite(void* args){
     int size = arguments[0], width = arguments[1], height = arguments[2];
     do{
         // Make this properly FIFO, idk how tbh I think this is probably good enough.
-        sleep(2);
+        sleep(1);
         // generate a random co-ordinate
         srand(time(NULL));
         xpos = rand() % width;
