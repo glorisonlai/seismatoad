@@ -510,16 +510,17 @@ void* run_comms(void* args){
     printf("Comms Thread Starting\n");
     
     // Setup type to receive
-    MPI_Datatype mp_tsunameter_reading;
-    int block_length[] = {1, 1}; // {float, int}
-    MPI_Aint block_displacement[] = {offsetof(tsunameter_reading, avg),
-                                    offsetof(tsunameter_reading, time)};
-    MPI_Datatype types[] = {MPI_FLOAT, MPI_INT};
 
-    MPI_Type_create_struct(2, block_length, block_displacement, types,
-                            &mp_tsunameter_reading);
-    MPI_Type_commit(&mp_tsunameter_reading);
-    
+    MPI_Datatype mp_base_station_info;
+    int iblock_length[] = {1, 1, 4}; // {float, int, int * neighbours}
+    MPI_Aint iblock_displacement[] = {offsetof(base_station_info, avg),
+                                    offsetof(base_station_info, time),
+                                    offsetof(base_station_info, neighbours)};
+    MPI_Datatype itypes[] = {MPI_FLOAT, MPI_INT, MPI_INT};
+
+    MPI_Type_create_struct(3, iblock_length, iblock_displacement, itypes,
+                            &mp_base_station_info);
+    MPI_Type_commit(&mp_base_station_info);
     
     // Useful code
     int* arguments = (int*)args;
@@ -528,9 +529,9 @@ void* run_comms(void* args){
     printf("Iterations: %d", iterations);
 
     MPI_Request comparison_reqs[size];
-    tsunameter_reading comparison_buffer[size];
+    base_station_info comparison_buffer[size];
     for (int i = 0; i < size; i++) {
-        MPI_Irecv(&comparison_buffer[i], 1, mp_tsunameter_reading, i, 0,
+        MPI_Irecv(&comparison_buffer[i], 1, mp_base_station_info, i, 0,
                     MPI_COMM_WORLD, &comparison_reqs[i]);
     }
 
@@ -541,7 +542,7 @@ void* run_comms(void* args){
         for(int tsu; tsu<size; tsu++){
         
             if (test_mpi_req(&comparison_reqs[tsu])) {
-                struct tsunameter_reading reading = comparison_buffer[tsu];
+                struct base_station_info reading = comparison_buffer[tsu];
                 int sender_x, sender_y; // TODO: Get from reading.
                 satellite_reading most_recent;
                 int max_time = 0;
@@ -561,6 +562,9 @@ void* run_comms(void* args){
                     // Log a false reading
                     // Tsunameter reading (time, node, neighbours, elevation)
                     // Flagged as False; No Matching Satellite Reading
+                    printf("Avg is %f\n Time: %d\n Neighbours: %d %d %d %d\n", 
+                    reading.avg, reading.time, reading.neighbours[0], reading.neighbours[1],
+                    reading.neighbours[2], reading.neighbours[3]);
                     
                 } else { // it's a valid reading
                     printf("Valid reading\n");
@@ -570,10 +574,13 @@ void* run_comms(void* args){
                     // Satellite Reading (time, node, elevation)
                     // Time difference between
                     // Height difference.
+                    printf("Avg is %f\n Time: %d\n Neighbours: %d %d %d %d\n", 
+                    reading.avg, reading.time, reading.neighbours[0], reading.neighbours[1],
+                    reading.neighbours[2], reading.neighbours[3]);
                 }
                 
                 // Reset comparison request
-                MPI_Irecv(&comparison_buffer[tsu], 1, mp_tsunameter_reading, tsu, 0,
+                MPI_Irecv(&comparison_buffer[tsu], 1, mp_base_station_info, tsu, 0,
                     MPI_COMM_WORLD, &comparison_reqs[tsu]);
             }  
         }
