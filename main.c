@@ -37,7 +37,7 @@ pthread_mutex_t comms_mutex;
 void* run_satellite(void* args);
 void* check_sentinel(void* arg);
 void* tsunameter_communication(void* arg);
-void* run_comms(void* arg);
+void* run_comms(void* args);
 
 
 int main(int argc, char **argv) {
@@ -199,7 +199,8 @@ int main(int argc, char **argv) {
         printf("Creating Comms Thread\n");
         pthread_t comms_tid;
         pthread_mutex_init(&comms_mutex, NULL);
-        pthread_create(&comms_tid, NULL, run_comms, NULL);
+        int comms_args[3] = {iterations, tsunameter_dims[0], tsunameter_dims[1]};
+        pthread_create(&comms_tid, NULL, run_comms, &comms_args);
         
         
         /* Glorison Base temp code -> Moved to run_comms
@@ -342,10 +343,12 @@ int main(int argc, char **argv) {
 
                 // Compare received readings with itself
                 // Timeout after 10 s
+                int similar_count, in_count;
                 while (MPI_Wtime() - starttime < 10) {
                     // Repeatedly check for similar readings
                     // TODO: Add comparison between process times
-                    int similar_count = 0, in_count = 0;
+                    similar_count = 0;
+                    in_count = 0;
                     for (int nbr_i = 0; nbr_i < num_neighbours; nbr_i++) {
                         // Continue checking if neighbours sent compare request
                         //printf("Rank %d testing comparison in loop\n", tsunameter_rank);
@@ -371,8 +374,8 @@ int main(int argc, char **argv) {
                         if (test_mpi_req(&recv_reqs[nbr_i])) {
                             in_count += 1;
                             //printf("Rank %d Received avg: %f, time: %d from %d\n", tsunameter_rank, recv_buff[nbr_i].avg, recv_buff[nbr_i].time, neighbours[nbr_i]);
-                            if (fabsf(recv_buff[nbr_i].avg) - get_moving_avg(avg) <
-                                tsunameter_threshold) {
+                            if (fabsf(recv_buff[nbr_i].avg - get_moving_avg(avg)) <
+                                TOLERANCE) {
                                 similar_count += 1;
                             }
                         }
@@ -396,27 +399,18 @@ int main(int argc, char **argv) {
                     }
                     sleep(1);
                 }
-
-                double endtime = MPI_Wtime();
-                //printf("%d finished checking,  < %d num_neighours, time = %f - %f = "
-                    //"%f < %d\n",
-                    //tsunameter_rank, num_neighbours, endtime, starttime,
-                    //endtime - starttime, endtime - starttime < 5);
             }
             
             sleep(TSUNAMETER_POLL);
         }
 
         // Termination signal received
-        free(avg);
-        free(neighbours);
-
         printf("%d terminating...\n", base_rank);
     } // End of Tsunameter (else) code
 /*+++++++++++++++++++++++++++++++ CLEAN UP +++++++++++++++++++++++++++++++*/
     MPI_Comm_free(&tsunameter_comm);
-    MPI_Finalize();
-    return 0;
+    printf("Freed by %d\n", base_rank);
+    return MPI_Finalize();
 }
 
 
@@ -490,65 +484,89 @@ void* check_sentinel(void* arg){
 
 /*+++++++++++++++++++++++++++++ COMMS THREAD +++++++++++++++++++++++++++++*/
 
-void* run_comms(void* arg){
+void* run_comms(void* args){
     printf("Comms Thread Starting\n");
-    int blah = 0;
+    
+    // Setup type to receive
+    MPI_Datatype mp_tsunameter_reading;
+    int block_length[] = {1, 1}; // {float, int}
+    MPI_Aint block_displacement[] = {offsetof(tsunameter_reading, avg),
+                                    offsetof(tsunameter_reading, time)};
+    MPI_Datatype types[] = {MPI_FLOAT, MPI_INT};
+
+    MPI_Type_create_struct(2, block_length, block_displacement, types,
+                            &mp_tsunameter_reading);
+    MPI_Type_commit(&mp_tsunameter_reading);
+    
+    
+    // Useful code
+    int* arguments = (int*)args;
+    int iterations = arguments[0], width = arguments[1], height = arguments[2];
+    int size = width * height;
+    printf("Iterations: %d", iterations);
+
+    MPI_Request comparison_reqs[size];
+    tsunameter_reading comparison_buffer[size];
+    for (int i = 0; i < size; i++) {
+        MPI_Irecv(&comparison_buffer[i], 1, mp_tsunameter_reading, i, 0,
+                    MPI_COMM_WORLD, &comparison_reqs[i]);
+    }
+
+
+    for(int iter=0; iter<iterations; iter++){
+        
+        // Make everything below this point happen for each tsunameter that is sending
+        for(int tsu; tsu<size; tsu++){
+        
+            if (test_mpi_req(&comparison_reqs[tsu])) {
+                struct tsunameter_reading reading = comparison_buffer[tsu];
+                int sender_x, sender_y; // TODO: Get from reading.
+                satellite_reading most_recent;
+                int max_time = 0;
+                int false_readings = 0, valid_readings = 0;
+                
+                for (int i=0; i<STORED_READINGS; i++){
+                    if (satellite_readings[i].xpos == sender_x && satellite_readings[i].ypos == sender_y){
+                        if (satellite_readings[i].time > max_time){
+                            most_recent = satellite_readings[i];
+                            max_time = most_recent.time;
+                        }
+                    }
+                }
+                if (max_time == 0) { // Then it's a false reading, as nothing was found
+                    printf("False Reading\n");
+                    false_readings += 1;
+                    // Log a false reading
+                    // Tsunameter reading (time, node, neighbours, elevation)
+                    // Flagged as False; No Matching Satellite Reading
+                    
+                } else { // it's a valid reading
+                    printf("Valid reading\n");
+                    valid_readings += 1;
+                    // Log a valid reading
+                    // Tsunameter Reading (time, node, neighbours, elevation)
+                    // Satellite Reading (time, node, elevation)
+                    // Time difference between
+                    // Height difference.
+                }
+                
+                // Reset comparison request
+                MPI_Irecv(&comparison_buffer[tsu], 1, mp_tsunameter_reading, tsu, 0,
+                    MPI_COMM_WORLD, &comparison_reqs[tsu]);
+            }  
+        }
+        
+        
+        if(comms_terminate == 1){
+            break;
+        }
+        sleep(TSUNAMETER_POLL);
+    } 
     MPI_Request send_req;
-    sleep(TSUNAMETER_POLL * 10);
+    int blah = 0;
     printf("TERMINATING...\n");
     comms_terminate = 1;
     MPI_Ibcast(&blah, 1, MPI_INT, 0, MPI_COMM_WORLD, &send_req);
-    /*
-        
-        
-        int count = 0;
-        do {
-            MPI_Recv();
-            // Do a non-blocking receive from every single tsunameter
-            // Check whether any of them have responded
-            // If any of them have:
-
-                // Once something is received:
-                // iterate through the sattelite_readings to find one for that tsunameter
-                // if none exist, log as false alert
-                // if one does exist, check timestamp and verify it is within the same 10 second period
-                // if more than one does exist, check the most recent timestamp
-                // log the alert as a valid alert with as much info as possible
-
-            // There is a set amount of iterations to run, specified at run time
-            // check for whether a sentinel value input has been entered
-
-        } while((count < iterations) && (terminating == 0));
-
-        // to terminate, do a final checking receive for every tsunameter
-        // This frees up any hanging sends
-        for(int i=0; i<tsunameter_count; i++){
-            MPI_Irecv(i);
-        }
-        MPI_Broadcast("terminate");
-        */
-    int data;
-    int sender_x, sender_y;
-    satellite_reading most_recent;
-    int max_time = 0;
-    int false_readings = 0, valid_readings = 0;
-    
-    
-    for (int i=0; i<STORED_READINGS; i++){
-        if (satellite_readings[i].xpos == sender_x && satellite_readings[i].ypos == sender_y){
-            if (satellite_readings[i].time > max_time){
-                most_recent = satellite_readings[i];
-                max_time = most_recent.time;
-            }
-        }
-    }
-    if (max_time == 0) { // Then it's a false reading, as nothing was found
-        printf("False Reading\n");
-        false_readings += 1;
-    } else { // it's a valid reading
-        printf("Valid reading\n");
-        valid_readings += 1;
-    }
 }
 
 
