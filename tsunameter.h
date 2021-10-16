@@ -27,6 +27,13 @@ typedef struct tsunameter_reading
     int time;
 } tsunameter_reading;
 
+typedef struct base_station_info
+{
+    float avg;
+    int time;
+    int neighbours[4];
+} base_station_info;
+
 // Initialize moving average
 moving_avg *init_moving_avg(int max_size);
 
