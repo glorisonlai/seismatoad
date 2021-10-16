@@ -555,7 +555,7 @@ void* run_comms(void* args){
 
     // Set up the print file
     FILE *fptr;
-    fptr = fopen("logs.txt", "w");
+    fptr = fopen("../logs.txt", "w");
 
     for(int iter=0; iter<iterations; iter++){
         
