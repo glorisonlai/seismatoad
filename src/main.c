@@ -95,7 +95,8 @@ int main(int argc, char **argv) {
     // Initialize topology from CL args
     errno = 0;
     int check_sum = 1;
-    for (int dim_index = 0; dim_index < DIMENSIONS + 1; dim_index++) {
+    int dim_index;
+    for (dim_index = 0; dim_index < DIMENSIONS + 1; dim_index++) {
         char *p;
         long arg = strtol(argv[dim_index + 1], &p, 10); // Get argument index from 1
         if (errno != 0 || *p != '\0' || arg < INT_MIN || arg > INT_MAX) {
@@ -246,8 +247,8 @@ int main(int argc, char **argv) {
         //********************** Base Station Termination ********************
         // Output the state of the satellite readings at termination
         printf("Current State of satellite readings:\n");
-        
-        for (int i=0; i<sat_records; i++){
+        int i;
+        for (i=0; i<sat_records; i++){
             printf("Record %d: Time is %d, Xpos is %d, Ypos is %d, elevation is %f\n",
                 i, satellite_readings[i].time, satellite_readings[i].xpos, satellite_readings[i].ypos, satellite_readings[i].elevation);
                 
@@ -279,7 +280,8 @@ int main(int argc, char **argv) {
         int num_neighbours;
         int *neighbours = get_neighbours(tsunameter_comm, DIMENSIONS, &num_neighbours);
         printf("rank %d: Neighbours: %d\n", tsunameter_rank, num_neighbours);
-        for (int i = 0; i < num_neighbours; i++) {
+        int i;
+        for (i = 0; i < num_neighbours; i++) {
             printf("  - %d\n", neighbours[i]);
         }
         printf("\n");
@@ -293,7 +295,8 @@ int main(int argc, char **argv) {
         // Send num_neighbour preliminary receives for compare signals
         MPI_Request comparison_reqs[num_neighbours];
         int comparison_buffer[num_neighbours];
-        for (int nbr_i = 0; nbr_i < num_neighbours; nbr_i++) {
+        int nbr_i;
+        for (nbr_i = 0; nbr_i < num_neighbours; nbr_i++) {
             MPI_Irecv(&comparison_buffer[nbr_i], 1, MPI_INT, neighbours[nbr_i], 2*tsunameter_rank,
                         tsunameter_comm, &comparison_reqs[nbr_i]);
         }
@@ -311,7 +314,7 @@ int main(int argc, char **argv) {
 
             // Check if neighbours sent compare request signal
             printf("Rank: %d, Testing...\n", tsunameter_rank);
-            for (int nbr_i = 0; nbr_i < num_neighbours; nbr_i++) {
+            for (nbr_i = 0; nbr_i < num_neighbours; nbr_i++) {
                 if (test_mpi_req(&comparison_reqs[nbr_i])) {
                     struct tsunameter_reading *curr_reading =
                         instantiate_tsunameter_reading(get_moving_avg(avg), curr_time);
@@ -342,7 +345,7 @@ int main(int argc, char **argv) {
 
                 // Ping other tsunameters to send their averages, and post corresponding
                 // receive
-                for (int nbr_i = 0; nbr_i < num_neighbours; nbr_i++) {
+                for (nbr_i = 0; nbr_i < num_neighbours; nbr_i++) {
                     MPI_Isend(&send_buf, 1, MPI_INT, neighbours[nbr_i], 2*neighbours[nbr_i],
                                 tsunameter_comm, &send_reqs[nbr_i]);
                     //printf("Rank %d sent to %d with tag %d\n", tsunameter_rank,
@@ -372,7 +375,7 @@ int main(int argc, char **argv) {
                     similar_neighbours[1] = -1;
                     similar_neighbours[2] = -1;
                     similar_neighbours[3] = -1;
-                    for (int nbr_i = 0; nbr_i < num_neighbours; nbr_i++) {
+                    for (nbr_i = 0; nbr_i < num_neighbours; nbr_i++) {
                         // Continue checking if neighbours sent compare request
                         //printf("Rank %d testing comparison in loop\n", tsunameter_rank);
                         
@@ -548,7 +551,8 @@ void* run_comms(void* args){
 
     MPI_Request comparison_reqs[size];
     base_station_info comparison_buffer[size];
-    for (int i = 0; i < size; i++) {
+    int i;
+    for (i = 0; i < size; i++) {
         MPI_Irecv(&comparison_buffer[i], 1, mp_base_station_info, i+1, 0,
                     MPI_COMM_WORLD, &comparison_reqs[i]);
     }
@@ -556,11 +560,12 @@ void* run_comms(void* args){
     // Set up the print file
     FILE *fptr;
     fptr = fopen("../logs.txt", "w");
-
-    for(int iter=0; iter<iterations; iter++){
+    int iter;
+    for(iter=0; iter<iterations; iter++){
         
         // Make everything below this point happen for each tsunameter that is sending
-        for(int tsu=0; tsu<size; tsu++){
+        int tsu;
+        for(tsu=0; tsu<size; tsu++){
         
             if (test_mpi_req(&comparison_reqs[tsu])) {
                 struct base_station_info reading = comparison_buffer[tsu];
@@ -568,8 +573,8 @@ void* run_comms(void* args){
                 satellite_reading most_recent;
                 int max_time = 0;
                 int false_readings = 0, valid_readings = 0;
-                
-                for (int i=0; i<STORED_READINGS; i++){
+                int i;
+                for (i=0; i<STORED_READINGS; i++){
                     if (satellite_readings[i].xpos == sender_x && satellite_readings[i].ypos == sender_y){
                         if (satellite_readings[i].time > max_time){
                             most_recent = satellite_readings[i];
@@ -589,7 +594,8 @@ void* run_comms(void* args){
                     fprintf(fptr, "Time: %d-%02d-%02d %02d:%02d:%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
                     fprintf(fptr, "At elevation %f\n", reading.avg);
                     fprintf(fptr, "Matching with neighbours:");
-                    for(int q; q<4; q++){
+                    int q;
+                    for(q = 0; q<4; q++){
                         if(reading.neighbours[q] != -1){
                             fprintf(fptr, " %d", reading.neighbours[q]);
                         }
@@ -615,7 +621,8 @@ void* run_comms(void* args){
                     fprintf(fptr, "Time: %d-%02d-%02d %02d:%02d:%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
                     fprintf(fptr, "At elevation %f\n", reading.avg);
                     fprintf(fptr, "Matching with neighbours:");
-                    for(int q; q<4; q++){
+                    int q;
+                    for(q = 0; q<4; q++){
                         if(reading.neighbours[q] != -1){
                             fprintf(fptr, " %d", reading.neighbours[q]);
                         }
@@ -649,7 +656,8 @@ void* run_comms(void* args){
         }
         sleep(TSUNAMETER_POLL);
     }
-    for(int i=0; i<size; i++){
+    int i;
+    for(i=0; i<size; i++){
         MPI_Cancel(&comparison_reqs[i]);
     } 
     

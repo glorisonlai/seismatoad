@@ -51,7 +51,6 @@ float generate_float_val(float limit) {
 void get_rank_at_coord(int *dims, int n_dims, int *coord, int *rank) {
     *rank = 1;
     int dim_index;
-    // TODO: Wrong for dim > 2 but w/e
     for (dim_index = 0; dim_index < n_dims - 1; dim_index++) {
         *rank *= dims[dim_index + 1] * coord[dim_index];
     }
