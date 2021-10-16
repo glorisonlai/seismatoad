@@ -9,6 +9,8 @@
 moving_avg *init_moving_avg(int max_size) {
     moving_avg *avg = (moving_avg *)malloc(sizeof(moving_avg));
     avg->max_size = max_size;
+    avg->avg = 0;
+    avg->size = 0;
     return avg;
 }
 
@@ -108,7 +110,7 @@ int* get_neighbours(MPI_Comm comm, int ndims, int *num_neighbours) {
 }
 
 tsunameter_reading *instantiate_tsunameter_reading(float avg, time_t time) {
-    tsunameter_reading *reading = malloc(sizeof(*reading));
+    tsunameter_reading *reading = (tsunameter_reading *)malloc(sizeof(tsunameter_reading));
     reading->avg = avg;
     reading->time = (int)time;
     return reading;
