@@ -17,7 +17,7 @@
 #define DIMENSIONS 2        // Tsunameter topology dimensions
 #define TERMINATION_TAG 0   // MPI Tag for termination
 #define MAX_READING 10000   // Max sample value
-#define TOLERANCE 100       // Tsunameter tolerance
+#define TOLERANCE 3000       // Tsunameter tolerance
 #define TSUNAMTER_WINDOW 20 // Tsunameter average window
 #define TSUNAMETER_POLL 2   // Tsunamter polling rate (s)
 #define STORED_READINGS 20 // How many satellite readings to store
@@ -196,6 +196,7 @@ int main(int argc, char **argv) {
         //******************** Sentinel Value Checking Code ********************
         // Construct an additional thread to handle sentinel exit values
         // POSIX HERE
+        
         printf("Creating Sentinel Thread\n");
         pthread_t sentinel_tid;
         pthread_mutex_init(&sentinel_mutex, NULL);
@@ -361,6 +362,10 @@ int main(int argc, char **argv) {
                     // TODO: Add comparison between process times
                     similar_count = 0;
                     in_count = 0;
+                    similar_neighbours[0] = -1;
+                    similar_neighbours[1] = -1;
+                    similar_neighbours[2] = -1;
+                    similar_neighbours[3] = -1;
                     for (int nbr_i = 0; nbr_i < num_neighbours; nbr_i++) {
                         // Continue checking if neighbours sent compare request
                         //printf("Rank %d testing comparison in loop\n", tsunameter_rank);
@@ -382,10 +387,7 @@ int main(int argc, char **argv) {
                                         tsunameter_comm, &comparison_reqs[nbr_i]);
                         }
                         //printf("Rank %d testing receives in loop\n", tsunameter_rank);
-                        similar_neighbours[0] = -1;
-                        similar_neighbours[1] = -1;
-                        similar_neighbours[2] = -1;
-                        similar_neighbours[3] = -1;
+
 
                         if (test_mpi_req(&recv_reqs[nbr_i])) {
                             in_count += 1;
@@ -404,11 +406,14 @@ int main(int argc, char **argv) {
                         printf("Rank: %d sending to base station\n", tsunameter_rank);
                         struct base_station_info blah;
                         blah.avg = get_moving_avg(avg);
-                        blah.time = (int) curr_time;
+                        blah.time = time(NULL);
                         blah.neighbours[0] = similar_neighbours[0];
                         blah.neighbours[1] = similar_neighbours[1];
                         blah.neighbours[2] = similar_neighbours[2];
                         blah.neighbours[3] = similar_neighbours[3];
+                        printf("Avg is %f\n Time: %d\n Neighbours: %d %d %d %d\n", 
+                    blah.avg, blah.time, blah.neighbours[0], blah.neighbours[1],
+                    blah.neighbours[2], blah.neighbours[3]);
                         MPI_Send(&blah, 1, mp_base_station_info, root, 0,
                                 MPI_COMM_WORLD);
                         printf("Sending completed by %d\n", tsunameter_rank);
