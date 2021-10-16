@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
     MPI_Comm_size(MPI_COMM_WORLD, &base_size);
 
     // Ensure tsunameter topology is given
-    if (argc != DIMENSIONS + 3) {
+    if (argc != DIMENSIONS + 4) {
         if (base_rank == root) {
         printf("\nUsage: mpirun -np <PROCESSES> main m n threshold sentinel\n");
         fflush(stdout);
@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
     }
     
     // read in the number of iterations, ensuring it is at least 1
-    iterations = atoi(argv[2]);
+    iterations = atoi(argv[4]);
     if (iterations <= 0){
         if (base_rank == root) {
             printf("\nMust have at least 1 iteration\n");
@@ -189,8 +189,8 @@ int main(int argc, char **argv) {
         pthread_t sentinel_tid;
         pthread_mutex_init(&sentinel_mutex, NULL);
         sentinel_terminate = 0;
-        printf("%s\n", argv[4]);
-        pthread_create(&sentinel_tid, NULL, check_sentinel, argv[4]);
+        printf("%s\n", argv[5]);
+        pthread_create(&sentinel_tid, NULL, check_sentinel, argv[5]);
         
         
         //********************** Comms code ********************
@@ -382,10 +382,11 @@ int main(int argc, char **argv) {
                     // Send information to base station
                     if (similar_count >= 2) {
                         printf("Rank: %d sending to base station\n", tsunameter_rank);
-                        tsunameter_reading *curr_reading =
+                        struct tsunameter_reading *curr_reading =
                             instantiate_tsunameter_reading(get_moving_avg(avg), curr_time);
                         MPI_Send(curr_reading, 1, mp_tsunameter_reading, root, 0,
                                 MPI_COMM_WORLD);
+                        printf("Sending completed by %d\n", tsunameter_rank);
                         free(curr_reading);
                         break;
                     }
@@ -466,7 +467,7 @@ void* check_sentinel(void* arg){
     char* sentinel = arg;
     do{
         fcntl(STDIN_FILENO, F_SETFL, fcntl(STDIN_FILENO, F_GETFL) | O_NONBLOCK);
-        sleep(2);
+        sleep(1);
         int readChars = read(STDIN_FILENO, buf, 4);
         if (readChars > 0) {
             // check whether buf now matches the sentinel value
@@ -530,6 +531,8 @@ void* run_comms(void* arg){
     int sender_x, sender_y;
     satellite_reading most_recent;
     int max_time = 0;
+    int false_readings = 0, valid_readings = 0;
+    
     
     for (int i=0; i<STORED_READINGS; i++){
         if (satellite_readings[i].xpos == sender_x && satellite_readings[i].ypos == sender_y){
@@ -541,8 +544,10 @@ void* run_comms(void* arg){
     }
     if (max_time == 0) { // Then it's a false reading, as nothing was found
         printf("False Reading\n");
+        false_readings += 1;
     } else { // it's a valid reading
         printf("Valid reading\n");
+        valid_readings += 1;
     }
 }
 
