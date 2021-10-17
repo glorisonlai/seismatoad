@@ -1,26 +1,60 @@
 Processor name: monarch-login2
 IPv4: 172.16.226.133
 O === Logging Valid Reading #1 from tsunameter 1
-Co-ordinates of reporting tsunameter is x: 1 y: 0
-Time: 2021-10-17 16:13:10
-At elevation 5055.210449
-Communication time taken: 1.000
+Co-ordinates of reporting tsunameter is x: 0 y: 1
+Time: 2021-10-18 03:33:23
+At elevation 5018.914551
+Communication time taken: 2.000
 Matching with neighbours: 0 2
 
 Matching Satellite Reading
-Time: 2157-11-23 22:41:26
-At elevation: 5803.000000
+Time: 2021-10-18 03:33:23
+At elevation: 5791.000000
 
 
 Reading Comparison:
 Time Difference: 0 seconds
-Elevation Difference: 747.789551 m
+Elevation Difference: 772.085449 m
+=====End of Event=====
+
+O === Logging Valid Reading #2 from tsunameter 1
+Co-ordinates of reporting tsunameter is x: 0 y: 1
+Time: 2021-10-18 03:33:36
+At elevation 5158.496094
+Communication time taken: 1.000
+Matching with neighbours: 0 2
+
+Matching Satellite Reading
+Time: 2021-10-18 03:33:35
+At elevation: 5816.000000
+
+
+Reading Comparison:
+Time Difference: 1 seconds
+Elevation Difference: 657.503906 m
+=====End of Event=====
+
+O === Logging Valid Reading #3 from tsunameter 1
+Co-ordinates of reporting tsunameter is x: 0 y: 1
+Time: 2021-10-18 03:33:40
+At elevation 5033.308105
+Communication time taken: 2.002
+Matching with neighbours: 0 2
+
+Matching Satellite Reading
+Time: 2021-10-18 03:33:40
+At elevation: 5721.000000
+
+
+Reading Comparison:
+Time Difference: 0 seconds
+Elevation Difference: 687.691895 m
 =====End of Event=====
 
 
 
 
 ============== SUMMARY ===============
-Had 1 total events, 1 were valid, 0 false
-Total time taken in seconds: 40.335
-Time per communication (avg): 1.000
+Had 3 total events, 3 were valid, 0 false
+Total time taken in seconds: 40.007
+Time per communication (avg): 1.667

@@ -1,0 +1,17 @@
+Processor name: monarch-login2
+IPv4: 172.16.226.133
+X === Logging False Reading #1 from tsunameter 7
+Co-ordinates of reporting tsunameter is x: 0 y: 7
+Time: 2838-05-29 17:14:04
+At elevation 6134.178223
+Communication time taken: 2.000
+Matching with neighbours: 6 8
+ =====End of Event=====
+
+
+
+
+============== SUMMARY ===============
+Had 1 total events, 0 were valid, 1 false
+Total time taken in seconds: 40.006
+Time per communication (avg): 2.000

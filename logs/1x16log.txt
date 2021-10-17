@@ -1,0 +1,551 @@
+Processor name: monarch-login2
+IPv4: 172.16.226.133
+X === Logging False Reading #1 from tsunameter 2
+Co-ordinates of reporting tsunameter is x: 0 y: 2
+Time: 2157-11-24 09:05:27
+At elevation 6136.447754
+Communication time taken: 1.000
+Matching with neighbours: 1 3
+ =====End of Event=====
+
+O === Logging Valid Reading #1 from tsunameter 1
+Co-ordinates of reporting tsunameter is x: 0 y: 1
+Time: 2021-10-18 02:37:14
+At elevation 5621.442871
+Communication time taken: 3.001
+Matching with neighbours: 0 2
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:14
+At elevation: 5175.000000
+
+
+Reading Comparison:
+Time Difference: 0 seconds
+Elevation Difference: 446.442871 m
+=====End of Event=====
+
+X === Logging False Reading #2 from tsunameter 6
+Co-ordinates of reporting tsunameter is x: 0 y: 6
+Time: 2702-04-23 09:58:35
+At elevation 5031.776855
+Communication time taken: 2.000
+Matching with neighbours: 5 7
+ =====End of Event=====
+
+O === Logging Valid Reading #2 from tsunameter 1
+Co-ordinates of reporting tsunameter is x: 0 y: 1
+Time: 2021-10-18 02:37:17
+At elevation 5758.050293
+Communication time taken: 1.000
+Matching with neighbours: 0 2
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:14
+At elevation: 5175.000000
+
+
+Reading Comparison:
+Time Difference: 3 seconds
+Elevation Difference: 583.050293 m
+=====End of Event=====
+
+O === Logging Valid Reading #3 from tsunameter 5
+Co-ordinates of reporting tsunameter is x: 0 y: 5
+Time: 2566-03-16 04:30:23
+At elevation 5073.063477
+Communication time taken: 2.000
+Matching with neighbours: 4 6
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:11
+At elevation: 5270.000000
+
+
+Reading Comparison:
+Time Difference: 8 seconds
+Elevation Difference: 196.936523 m
+=====End of Event=====
+
+O === Logging Valid Reading #4 from tsunameter 1
+Co-ordinates of reporting tsunameter is x: 0 y: 1
+Time: 2021-10-18 02:37:20
+At elevation 5974.084961
+Communication time taken: 1.000
+Matching with neighbours: 0 2
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:14
+At elevation: 5175.000000
+
+
+Reading Comparison:
+Time Difference: 6 seconds
+Elevation Difference: 799.084961 m
+=====End of Event=====
+
+O === Logging Valid Reading #5 from tsunameter 8
+Co-ordinates of reporting tsunameter is x: 0 y: 8
+Time: 2974-07-05 22:55:13
+At elevation 5231.729004
+Communication time taken: 2.000
+Matching with neighbours: 7 9
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:09
+At elevation: 5878.000000
+
+
+Reading Comparison:
+Time Difference: 12 seconds
+Elevation Difference: 646.270996 m
+=====End of Event=====
+
+O === Logging Valid Reading #6 from tsunameter 13
+Co-ordinates of reporting tsunameter is x: 0 y: 13
+Time: 3655-01-08 08:16:32
+At elevation 5010.038574
+Communication time taken: 1.000
+Matching with neighbours: 12 14
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:16
+At elevation: 5894.000000
+
+
+Reading Comparison:
+Time Difference: 4 seconds
+Elevation Difference: 883.961426 m
+=====End of Event=====
+
+O === Logging Valid Reading #7 from tsunameter 12
+Co-ordinates of reporting tsunameter is x: 0 y: 12
+Time: 3518-12-03 01:48:18
+At elevation 5008.492188
+Communication time taken: 3.001
+Matching with neighbours: 11 13
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:22
+At elevation: 5168.000000
+
+
+Reading Comparison:
+Time Difference: 0 seconds
+Elevation Difference: 159.507812 m
+=====End of Event=====
+
+O === Logging Valid Reading #8 from tsunameter 13
+Co-ordinates of reporting tsunameter is x: 0 y: 13
+Time: 3655-01-08 08:16:35
+At elevation 5263.080566
+Communication time taken: 1.000
+Matching with neighbours: 12 14
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:16
+At elevation: 5894.000000
+
+
+Reading Comparison:
+Time Difference: 7 seconds
+Elevation Difference: 630.919434 m
+=====End of Event=====
+
+O === Logging Valid Reading #9 from tsunameter 1
+Co-ordinates of reporting tsunameter is x: 0 y: 1
+Time: 2021-10-18 02:37:23
+At elevation 5452.470703
+Communication time taken: 1.000
+Matching with neighbours: 0 2
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:14
+At elevation: 5175.000000
+
+
+Reading Comparison:
+Time Difference: 9 seconds
+Elevation Difference: 277.470703 m
+=====End of Event=====
+
+O === Logging Valid Reading #10 from tsunameter 6
+Co-ordinates of reporting tsunameter is x: 0 y: 6
+Time: 2702-04-23 09:58:45
+At elevation 5173.314453
+Communication time taken: 2.000
+Matching with neighbours: 5 7
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:18
+At elevation: 5665.000000
+
+
+Reading Comparison:
+Time Difference: 7 seconds
+Elevation Difference: 491.685547 m
+=====End of Event=====
+
+O === Logging Valid Reading #11 from tsunameter 8
+Co-ordinates of reporting tsunameter is x: 0 y: 8
+Time: 2974-07-05 22:55:17
+At elevation 5015.289551
+Communication time taken: 2.000
+Matching with neighbours: 7 9
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:09
+At elevation: 5878.000000
+
+
+Reading Comparison:
+Time Difference: 16 seconds
+Elevation Difference: 862.710449 m
+=====End of Event=====
+
+O === Logging Valid Reading #12 from tsunameter 1
+Co-ordinates of reporting tsunameter is x: 0 y: 1
+Time: 2021-10-18 02:37:26
+At elevation 5054.426758
+Communication time taken: 1.000
+Matching with neighbours: 0 2
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:14
+At elevation: 5175.000000
+
+
+Reading Comparison:
+Time Difference: 12 seconds
+Elevation Difference: 120.573242 m
+=====End of Event=====
+
+O === Logging Valid Reading #13 from tsunameter 12
+Co-ordinates of reporting tsunameter is x: 0 y: 12
+Time: 3518-12-03 01:48:23
+At elevation 5529.625977
+Communication time taken: 1.000
+Matching with neighbours: 11 13
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:22
+At elevation: 5168.000000
+
+
+Reading Comparison:
+Time Difference: 5 seconds
+Elevation Difference: 361.625977 m
+=====End of Event=====
+
+O === Logging Valid Reading #14 from tsunameter 5
+Co-ordinates of reporting tsunameter is x: 0 y: 5
+Time: 2566-03-16 04:30:33
+At elevation 5386.598145
+Communication time taken: 2.000
+Matching with neighbours: 4 6
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:11
+At elevation: 5270.000000
+
+
+Reading Comparison:
+Time Difference: 18 seconds
+Elevation Difference: 116.598145 m
+=====End of Event=====
+
+O === Logging Valid Reading #15 from tsunameter 6
+Co-ordinates of reporting tsunameter is x: 0 y: 6
+Time: 2702-04-23 09:58:49
+At elevation 5292.026367
+Communication time taken: 2.000
+Matching with neighbours: 5 7
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:18
+At elevation: 5665.000000
+
+
+Reading Comparison:
+Time Difference: 11 seconds
+Elevation Difference: 372.973633 m
+=====End of Event=====
+
+O === Logging Valid Reading #16 from tsunameter 8
+Co-ordinates of reporting tsunameter is x: 0 y: 8
+Time: 2974-07-05 22:55:21
+At elevation 5014.553223
+Communication time taken: 2.001
+Matching with neighbours: 7 9
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:27
+At elevation: 5243.000000
+
+
+Reading Comparison:
+Time Difference: 2 seconds
+Elevation Difference: 228.446777 m
+=====End of Event=====
+
+O === Logging Valid Reading #17 from tsunameter 1
+Co-ordinates of reporting tsunameter is x: 0 y: 1
+Time: 2021-10-18 02:37:29
+At elevation 5245.544434
+Communication time taken: 1.000
+Matching with neighbours: 0 2
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:14
+At elevation: 5175.000000
+
+
+Reading Comparison:
+Time Difference: 15 seconds
+Elevation Difference: 70.544434 m
+=====End of Event=====
+
+O === Logging Valid Reading #18 from tsunameter 12
+Co-ordinates of reporting tsunameter is x: 0 y: 12
+Time: 3518-12-03 01:48:27
+At elevation 5547.016113
+Communication time taken: 2.000
+Matching with neighbours: 11 13
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:28
+At elevation: 5905.000000
+
+
+Reading Comparison:
+Time Difference: 3 seconds
+Elevation Difference: 357.983887 m
+=====End of Event=====
+
+O === Logging Valid Reading #19 from tsunameter 13
+Co-ordinates of reporting tsunameter is x: 0 y: 13
+Time: 3655-01-08 08:16:42
+At elevation 5100.180176
+Communication time taken: 3.001
+Matching with neighbours: 12 14
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:30
+At elevation: 5763.000000
+
+
+Reading Comparison:
+Time Difference: 0 seconds
+Elevation Difference: 662.819824 m
+=====End of Event=====
+
+O === Logging Valid Reading #20 from tsunameter 5
+Co-ordinates of reporting tsunameter is x: 0 y: 5
+Time: 2566-03-16 04:30:37
+At elevation 5576.483887
+Communication time taken: 2.000
+Matching with neighbours: 4 6
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:31
+At elevation: 5300.000000
+
+
+Reading Comparison:
+Time Difference: 2 seconds
+Elevation Difference: 276.483887 m
+=====End of Event=====
+
+O === Logging Valid Reading #21 from tsunameter 6
+Co-ordinates of reporting tsunameter is x: 0 y: 6
+Time: 2702-04-23 09:58:53
+At elevation 5111.237793
+Communication time taken: 2.000
+Matching with neighbours: 5 7
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:32
+At elevation: 5585.000000
+
+
+Reading Comparison:
+Time Difference: 1 seconds
+Elevation Difference: 473.762207 m
+=====End of Event=====
+
+O === Logging Valid Reading #22 from tsunameter 8
+Co-ordinates of reporting tsunameter is x: 0 y: 8
+Time: 2974-07-05 22:55:25
+At elevation 5098.538086
+Communication time taken: 2.000
+Matching with neighbours: 7 9
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:27
+At elevation: 5243.000000
+
+
+Reading Comparison:
+Time Difference: 6 seconds
+Elevation Difference: 144.461914 m
+=====End of Event=====
+
+O === Logging Valid Reading #23 from tsunameter 9
+Co-ordinates of reporting tsunameter is x: 0 y: 9
+Time: 3110-08-13 05:23:41
+At elevation 5042.331543
+Communication time taken: 2.000
+Matching with neighbours: 8 10
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:29
+At elevation: 5855.000000
+
+
+Reading Comparison:
+Time Difference: 4 seconds
+Elevation Difference: 812.668457 m
+=====End of Event=====
+
+O === Logging Valid Reading #24 from tsunameter 11
+Co-ordinates of reporting tsunameter is x: 0 y: 11
+Time: 3382-10-25 19:20:13
+At elevation 5506.182129
+Communication time taken: 2.000
+Matching with neighbours: 10 12
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:21
+At elevation: 5184.000000
+
+
+Reading Comparison:
+Time Difference: 12 seconds
+Elevation Difference: 322.182129 m
+=====End of Event=====
+
+X === Logging False Reading #3 from tsunameter 1
+Co-ordinates of reporting tsunameter is x: 0 y: 1
+Time: 2021-10-18 02:37:33
+At elevation 5527.738770
+Communication time taken: 2.000
+Matching with neighbours: 0 2
+ =====End of Event=====
+
+O === Logging Valid Reading #25 from tsunameter 12
+Co-ordinates of reporting tsunameter is x: 0 y: 12
+Time: 3518-12-03 01:48:31
+At elevation 5781.418457
+Communication time taken: 2.000
+Matching with neighbours: 11 13
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:28
+At elevation: 5905.000000
+
+
+Reading Comparison:
+Time Difference: 7 seconds
+Elevation Difference: 123.581543 m
+=====End of Event=====
+
+O === Logging Valid Reading #26 from tsunameter 13
+Co-ordinates of reporting tsunameter is x: 0 y: 13
+Time: 3655-01-08 08:16:46
+At elevation 5268.849121
+Communication time taken: 2.000
+Matching with neighbours: 12 14
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:34
+At elevation: 5322.000000
+
+
+Reading Comparison:
+Time Difference: 0 seconds
+Elevation Difference: 53.150879 m
+=====End of Event=====
+
+O === Logging Valid Reading #27 from tsunameter 5
+Co-ordinates of reporting tsunameter is x: 0 y: 5
+Time: 2566-03-16 04:30:41
+At elevation 5532.202637
+Communication time taken: 2.000
+Matching with neighbours: 4 6
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:31
+At elevation: 5300.000000
+
+
+Reading Comparison:
+Time Difference: 6 seconds
+Elevation Difference: 232.202637 m
+=====End of Event=====
+
+O === Logging Valid Reading #28 from tsunameter 6
+Co-ordinates of reporting tsunameter is x: 0 y: 6
+Time: 2702-04-23 09:58:57
+At elevation 5342.374512
+Communication time taken: 2.000
+Matching with neighbours: 5 7
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:32
+At elevation: 5585.000000
+
+
+Reading Comparison:
+Time Difference: 5 seconds
+Elevation Difference: 242.625488 m
+=====End of Event=====
+
+O === Logging Valid Reading #29 from tsunameter 8
+Co-ordinates of reporting tsunameter is x: 0 y: 8
+Time: 2974-07-05 22:55:29
+At elevation 5416.421875
+Communication time taken: 2.000
+Matching with neighbours: 7 9
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:27
+At elevation: 5243.000000
+
+
+Reading Comparison:
+Time Difference: 10 seconds
+Elevation Difference: 173.421875 m
+=====End of Event=====
+
+X === Logging False Reading #4 from tsunameter 10
+Co-ordinates of reporting tsunameter is x: 0 y: 10
+Time: 3246-09-18 11:52:00
+At elevation 5006.840820
+Communication time taken: 1.000
+Matching with neighbours: 9 11
+ =====End of Event=====
+
+O === Logging Valid Reading #30 from tsunameter 11
+Co-ordinates of reporting tsunameter is x: 0 y: 11
+Time: 3382-10-25 19:20:16
+At elevation 5327.397461
+Communication time taken: 1.000
+Matching with neighbours: 10 12
+
+Matching Satellite Reading
+Time: 2021-10-18 02:37:21
+At elevation: 5184.000000
+
+
+Reading Comparison:
+Time Difference: 15 seconds
+Elevation Difference: 143.397461 m
+=====End of Event=====
+
+
+
+
+============== SUMMARY ===============
+Had 34 total events, 30 were valid, 4 false
+Total time taken in seconds: 40.009
+Time per communication (avg): 1.765
