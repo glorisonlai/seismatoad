@@ -429,8 +429,7 @@ int main(int argc, char **argv) {
                         blah.neighbours[3] = similar_neighbours[3];
                         printf("Neighbours: %d %d %d %d\n", blah.neighbours[0], blah.neighbours[1],
                     blah.neighbours[2], blah.neighbours[3]);
-                        double endtime = MPI_Wtime();
-                        blah.comm_time =  endtime - starttime;
+                        blah.comm_time =  MPI_Wtime() - starttime;
                         MPI_Request tempstat;
                         MPI_Isend(&blah, 1, mp_base_station_info, root, 0,
                                 MPI_COMM_WORLD, &tempstat);
@@ -620,7 +619,7 @@ void* run_comms(void* args){
                     fprintf(fptr, "Co-ordinates of reporting tsunameter is x: %d y: %d\n", sender_x, sender_y);
                     fprintf(fptr, "Time: %d-%02d-%02d %02d:%02d:%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
                     fprintf(fptr, "At elevation %f\n", reading.avg);
-                    fprintf(fptr, "Communication time taken: %.3lf\n", reading.comm_time);
+                    fprintf(fptr, "Communication time taken: %.3f\n", reading.comm_time);
                     fprintf(fptr, "Matching with neighbours:");
                     int q;
                     for(q = 0; q<4; q++){
@@ -648,7 +647,7 @@ void* run_comms(void* args){
                     fprintf(fptr, "Co-ordinates of reporting tsunameter is x: %d y: %d\n", sender_x, sender_y);
                     fprintf(fptr, "Time: %d-%02d-%02d %02d:%02d:%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
                     fprintf(fptr, "At elevation %f\n", reading.avg);
-                    fprintf(fptr, "Communication time taken: %.3lf\n", reading.comm_time);
+                    fprintf(fptr, "Communication time taken: %.3f\n", reading.comm_time);
                     fprintf(fptr, "Matching with neighbours:");
                     int q;
                     for(q = 0; q<4; q++){
