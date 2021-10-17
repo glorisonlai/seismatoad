@@ -17,7 +17,7 @@
 #define DIMENSIONS 2        // Tsunameter topology dimensions
 #define TERMINATION_TAG 0   // MPI Tag for termination
 #define MAX_READING 10000   // Max sample value
-#define TOLERANCE 3000       // Tsunameter tolerance
+#define TOLERANCE 500       // Tsunameter tolerance
 #define TSUNAMTER_WINDOW 20 // Tsunameter average window
 #define TSUNAMETER_POLL 2   // Tsunamter polling rate (s)
 #define STORED_READINGS 20 // How many satellite readings to store
@@ -559,7 +559,7 @@ void* run_comms(void* args){
 
     // Set up the print file
     FILE *fptr;
-    fptr = fopen("../logs.txt", "w");
+    fptr = fopen("logs.txt", "w");
     int iter;
     for(iter=0; iter<iterations; iter++){
         

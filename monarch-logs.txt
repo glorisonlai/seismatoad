@@ -1,0 +1,24 @@
+X === Logging False Reading #1 from tsunameter 4
+Co-ordinates of reporting tsunameter is x: 0 y: 1
+Time: 2157-11-23 11:09:45
+At elevation 6905.608887
+Matching with neighbours: 1 5
+ =====End of Event=====
+X === Logging False Reading #1 from tsunameter 4
+Co-ordinates of reporting tsunameter is x: 0 y: 1
+Time: 1885-09-09 20:53:08
+At elevation 7202.937988
+Matching with neighbours: 7 5
+ =====End of Event=====
+X === Logging False Reading #1 from tsunameter 4
+Co-ordinates of reporting tsunameter is x: 0 y: 1
+Time: 2157-11-23 11:09:50
+At elevation 6433.939941
+Matching with neighbours: 1 7
+ =====End of Event=====
+X === Logging False Reading #1 from tsunameter 4
+Co-ordinates of reporting tsunameter is x: 0 y: 1
+Time: 1885-09-09 20:53:13
+At elevation 6148.378906
+Matching with neighbours: 7 3 5
+ =====End of Event=====
