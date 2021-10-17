@@ -10,6 +10,9 @@
 #include <fcntl.h>  // Used for reading input safely
 #include <string.h> // useful for string comparison
 #include <pthread.h> // posix
+#include <netdb.h>
+#include <arpa/inet.h>
+
 
 #include "tsunameter.h" // Tsunameter functions
 #include "satellite.h" // Satellite Readings struct
@@ -39,6 +42,8 @@ void* check_sentinel(void* arg);
 void* tsunameter_communication(void* arg);
 void* run_comms(void* args);
 
+char* get_ip_addr();
+char* get_processor_name();
 
 int main(int argc, char **argv) {
     int tsunameter_dims[DIMENSIONS];
@@ -561,6 +566,11 @@ void* run_comms(void* args){
     FILE *fptr;
     fptr = fopen("logs.txt", "w");
     int iter;
+
+    fprintf(fptr, "Processor name: %s\n", get_processor_name());
+
+    fprintf(fptr, "IPv4: %s", get_ip_addr());
+
     for(iter=0; iter<iterations; iter++){
         
         // Make everything below this point happen for each tsunameter that is sending
@@ -673,16 +683,29 @@ void* run_comms(void* args){
     MPI_Ibcast(&blah, 1, MPI_INT, 0, MPI_COMM_WORLD, &send_req);
 }
 
+char* get_ip_addr() {
+    char hostbuffer[256];
+    char *IPbuffer;
+    struct hostent *host_entry;
+    int hostname;
+  
+    // To retrieve hostname
+    hostname = gethostname(hostbuffer, sizeof(hostbuffer));
+  
+    // To retrieve host information
+    host_entry = gethostbyname(hostbuffer);
+  
+    // To convert an Internet network
+    // address into ASCII string
+    IPbuffer = inet_ntoa(*((struct in_addr*)
+                           host_entry->h_addr_list[0]));
+    return IPbuffer;
+}
 
+char* get_processor_name() {
+    char* processor_name;
+    int processor_len;
+    MPI_Get_processor_name(processor_name, &processor_len);
 
-
-
-
-
-
-
-
-
-
-
-
+    return processor_name;
+}
