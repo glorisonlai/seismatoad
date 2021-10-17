@@ -594,10 +594,12 @@ void* run_comms(void* args){
         for(tsu=0; tsu<size; tsu++){
         
             if (test_mpi_req(&comparison_reqs[tsu])) {
+                printf("a\n");
                 struct base_station_info reading = comparison_buffer[tsu];
                 int sender_x = tsu % width, sender_y = tsu / width; 
                 satellite_reading most_recent;
                 int max_time = 0;
+                printf("b\n");
                 
                 int i;
                 for (i=0; i<STORED_READINGS; i++){
