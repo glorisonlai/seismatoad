@@ -416,6 +416,7 @@ int main(int argc, char **argv) {
 
                     //printf("Rank: %d, Similar_count: %d\n", tsunameter_rank, similar_count);
                     // Send information to base station
+                    // TODO: SMTH TO DO WITH SIMILAR_COUNT IS MESSED
                     if (similar_count >= 2) {
                         printf("Rank: %d sending to base station\n", tsunameter_rank);
                         struct base_station_info blah;
