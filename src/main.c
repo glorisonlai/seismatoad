@@ -429,12 +429,13 @@ int main(int argc, char **argv) {
                         blah.neighbours[3] = similar_neighbours[3];
                         printf("Neighbours: %d %d %d %d\n", blah.neighbours[0], blah.neighbours[1],
                     blah.neighbours[2], blah.neighbours[3]);
-                        blah.comm_time =  MPI_Wtime() - starttime;
+                        double endtime = MPI_Wtime();
+                        blah.comm_time =  endtime - starttime;
                         MPI_Request tempstat;
                         MPI_Isend(&blah, 1, mp_base_station_info, root, 0,
                                 MPI_COMM_WORLD, &tempstat);
                         printf("Sending completed by %d\n", tsunameter_rank);
-                        
+                         
                         break;
                     }
 
