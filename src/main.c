@@ -565,7 +565,7 @@ void* run_comms(void* args){
     int iter;
     int false_readings = 0, valid_readings = 0;
 
-    char* processor_name;
+    char processor_name[MPI_MAX_PROCESSOR_NAME];
     int processor_len;
     MPI_Get_processor_name(processor_name, &processor_len);
     fprintf(fptr, "Processor name: %s\n", processor_name);
