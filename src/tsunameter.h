@@ -43,6 +43,9 @@ void append_moving_avg(moving_avg *avg, float val);
 // Get current average
 float get_moving_avg(moving_avg *avg);
 
+// Free moving average struct
+void free_moving_avg(moving_avg *avg);
+
 // Generate random float up to limit
 float generate_float_val(float limit);
 

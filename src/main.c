@@ -445,7 +445,7 @@ int main(int argc, char **argv) {
         }
 
         // Termination signal received
-        free(avg);
+        free_moving_avg(avg);
         free(neighbours);
         printf("%d terminating...\n", base_rank);
     } // End of Tsunameter (else) code

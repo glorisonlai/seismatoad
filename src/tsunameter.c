@@ -44,6 +44,16 @@ float get_moving_avg(moving_avg *avg) {
     return avg->avg;
 }
 
+void free_moving_avg(moving_avg *avg) {
+    while (avg->size) {
+        avg_el *temp = avg->queue_head;
+        avg->queue_head = temp->next;
+        free(temp);
+        avg->size -= 1;
+    }
+    free(avg);
+}
+
 float generate_float_val(float limit) {
     return (float)rand() / (float)(RAND_MAX)*limit;
 }
