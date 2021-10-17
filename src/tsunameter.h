@@ -32,6 +32,7 @@ typedef struct base_station_info
     float avg;
     int time;
     int neighbours[4];
+    double comm_time;
 } base_station_info;
 
 // Initialize moving average

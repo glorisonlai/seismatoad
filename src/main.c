@@ -167,13 +167,14 @@ int main(int argc, char **argv) {
     MPI_Type_commit(&mp_tsunameter_reading);
 
     MPI_Datatype mp_base_station_info;
-    int iblock_length[] = {1, 1, 4}; // {float, int, int * neighbours}
+    int iblock_length[] = {1, 1, 4, 1}; // {float, int, int * neighbours, double}
     MPI_Aint iblock_displacement[] = {offsetof(base_station_info, avg),
                                     offsetof(base_station_info, time),
-                                    offsetof(base_station_info, neighbours)};
-    MPI_Datatype itypes[] = {MPI_FLOAT, MPI_INT, MPI_INT};
+                                    offsetof(base_station_info, neighbours),
+                                    offsetof(base_station_info, comm_time)};
+    MPI_Datatype itypes[] = {MPI_FLOAT, MPI_INT, MPI_INT, MPI_DOUBLE};
 
-    MPI_Type_create_struct(3, iblock_length, iblock_displacement, itypes,
+    MPI_Type_create_struct(4, iblock_length, iblock_displacement, itypes,
                             &mp_base_station_info);
     MPI_Type_commit(&mp_base_station_info);
 
@@ -428,6 +429,7 @@ int main(int argc, char **argv) {
                         blah.neighbours[3] = similar_neighbours[3];
                         printf("Neighbours: %d %d %d %d\n", blah.neighbours[0], blah.neighbours[1],
                     blah.neighbours[2], blah.neighbours[3]);
+                        blah.comm_time =  MPI_Wtime() - starttime;
                         MPI_Request tempstat;
                         MPI_Isend(&blah, 1, mp_base_station_info, root, 0,
                                 MPI_COMM_WORLD, &tempstat);
@@ -533,18 +535,18 @@ void* run_comms(void* args){
     printf("Comms Thread Starting\n");
     double start_time = MPI_Wtime();
     // Setup type to receive
-
     MPI_Datatype mp_base_station_info;
-    int iblock_length[] = {1, 1, 4}; // {float, int, int * neighbours}
+    int iblock_length[] = {1, 1, 4, 1}; // {float, int, int * neighbours, double}
     MPI_Aint iblock_displacement[] = {offsetof(base_station_info, avg),
                                     offsetof(base_station_info, time),
-                                    offsetof(base_station_info, neighbours)};
-    MPI_Datatype itypes[] = {MPI_FLOAT, MPI_INT, MPI_INT};
+                                    offsetof(base_station_info, neighbours),
+                                    offsetof(base_station_info, comm_time)};
+    MPI_Datatype itypes[] = {MPI_FLOAT, MPI_INT, MPI_INT, MPI_DOUBLE};
 
-    MPI_Type_create_struct(3, iblock_length, iblock_displacement, itypes,
+    MPI_Type_create_struct(4, iblock_length, iblock_displacement, itypes,
                             &mp_base_station_info);
     MPI_Type_commit(&mp_base_station_info);
-    
+
     // Useful code
     int* arguments = (int*)args;
     int iterations = arguments[0], width = arguments[1], height = arguments[2];
@@ -564,6 +566,7 @@ void* run_comms(void* args){
     fptr = fopen("logs.txt", "w");
     int iter;
     int false_readings = 0, valid_readings = 0;
+    double total_comm_time = 0;
 
     char processor_name[MPI_MAX_PROCESSOR_NAME];
     int processor_len;
@@ -616,6 +619,7 @@ void* run_comms(void* args){
                     fprintf(fptr, "Co-ordinates of reporting tsunameter is x: %d y: %d\n", sender_x, sender_y);
                     fprintf(fptr, "Time: %d-%02d-%02d %02d:%02d:%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
                     fprintf(fptr, "At elevation %f\n", reading.avg);
+                    fprintf(fptr, "Communication time taken: %.3lf\n", reading.comm_time);
                     fprintf(fptr, "Matching with neighbours:");
                     int q;
                     for(q = 0; q<4; q++){
@@ -643,6 +647,7 @@ void* run_comms(void* args){
                     fprintf(fptr, "Co-ordinates of reporting tsunameter is x: %d y: %d\n", sender_x, sender_y);
                     fprintf(fptr, "Time: %d-%02d-%02d %02d:%02d:%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
                     fprintf(fptr, "At elevation %f\n", reading.avg);
+                    fprintf(fptr, "Communication time taken: %.3lf\n", reading.comm_time);
                     fprintf(fptr, "Matching with neighbours:");
                     int q;
                     for(q = 0; q<4; q++){
@@ -666,7 +671,9 @@ void* run_comms(void* args){
                     reading.neighbours[2], reading.neighbours[3]);
                     */
                 }
-                
+                // Update total running communication time
+                total_comm_time += reading.comm_time;
+
                 // Reset comparison request
                 MPI_Irecv(&comparison_buffer[tsu], 1, mp_base_station_info, tsu+1, 0,
                     MPI_COMM_WORLD, &comparison_reqs[tsu]);
@@ -687,7 +694,7 @@ void* run_comms(void* args){
     fprintf(fptr, "\n\n\n============== SUMMARY ===============\n");
     fprintf(fptr, "Had %d total events, %d were valid, %d false\n", false_readings + valid_readings, valid_readings, false_readings);
     fprintf(fptr, "Total time taken in seconds: %.3lf\n", end_time - start_time);
-    fprintf(fptr, "Time per communication loop: %.3lf\n", (end_time - start_time - (2 * iter))/iter);
+    fprintf(fptr, "Time per communication (avg): %.3lf\n", total_comm_time / (valid_readings + false_readings));
     
     // Close the file handler
     fclose(fptr);
