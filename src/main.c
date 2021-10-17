@@ -600,7 +600,7 @@ void* run_comms(void* args){
                             fprintf(fptr, " %d", reading.neighbours[q]);
                         }
                     } 
-                    fprintf(fptr, "\n =====End of Event=====\n");
+                    fprintf(fptr, "\n =====End of Event=====\n\n");
                     /*
                     printf("Avg is %f\n Time: %d\n Neighbours: %d %d %d %d\n", 
                     reading.avg, reading.time, reading.neighbours[0], reading.neighbours[1],
@@ -635,7 +635,7 @@ void* run_comms(void* args){
                     fprintf(fptr, "\n\nReading Comparison:\n");
                     fprintf(fptr, "Time Difference: %d seconds\n", abs(most_recent.time - reading.time));
                     fprintf(fptr, "Elevation Difference: %f m\n", fabs(most_recent.elevation - reading.avg));   
-                    fprintf(fptr, "=====End of Event=====\n");  
+                    fprintf(fptr, "=====End of Event=====\n\n");  
                                    
                     /*
                     printf("Avg is %f\n Time: %d\n Neighbours: %d %d %d %d\n", 
