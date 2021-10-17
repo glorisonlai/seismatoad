@@ -20,7 +20,7 @@
 #define DIMENSIONS 2        // Tsunameter topology dimensions
 #define TERMINATION_TAG 0   // MPI Tag for termination
 #define MAX_READING 10000   // Max sample value
-#define TOLERANCE 500       // Tsunameter tolerance
+#define TOLERANCE 1000       // Tsunameter tolerance
 #define TSUNAMTER_WINDOW 20 // Tsunameter average window
 #define TSUNAMETER_POLL 2   // Tsunamter polling rate (s)
 #define STORED_READINGS 20 // How many satellite readings to store
@@ -41,9 +41,6 @@ void* run_satellite(void* args);
 void* check_sentinel(void* arg);
 void* tsunameter_communication(void* arg);
 void* run_comms(void* args);
-
-char* get_ip_addr();
-char* get_processor_name();
 
 int main(int argc, char **argv) {
     int tsunameter_dims[DIMENSIONS];
@@ -568,9 +565,24 @@ void* run_comms(void* args){
     int iter;
     int false_readings = 0, valid_readings = 0;
 
-    fprintf(fptr, "Processor name: %s\n", get_processor_name());
+    char* processor_name;
+    int processor_len;
+    MPI_Get_processor_name(processor_name, &processor_len);
+    fprintf(fptr, "Processor name: %s\n", processor_name);
 
-    fprintf(fptr, "IPv4: %s\n", get_ip_addr());
+    char hostbuffer[256];
+    char *IPbuffer;
+    struct hostent *host_entry;
+    int hostname;
+    // To retrieve hostname
+    hostname = gethostname(hostbuffer, sizeof(hostbuffer));
+    // To retrieve host information
+    host_entry = gethostbyname(hostbuffer);
+    // To convert an Internet network
+    // address into ASCII string
+    IPbuffer = inet_ntoa(*((struct in_addr*)
+                           host_entry->h_addr_list[0]));
+    fprintf(fptr, "IPv4: %s\n", IPbuffer);
 
     for(iter=0; iter<iterations; iter++){
         
@@ -627,7 +639,7 @@ void* run_comms(void* args){
                     // Time difference between
                     // Height difference.
                     struct tm tm = *localtime((time_t*)&reading.time);
-                    fprintf(fptr, "O === Logging Valid Reading #%d from tsunameter %d\n", false_readings, tsu); 
+                    fprintf(fptr, "O === Logging Valid Reading #%d from tsunameter %d\n", valid_readings, tsu); 
                     fprintf(fptr, "Co-ordinates of reporting tsunameter is x: %d y: %d\n", sender_x, sender_y);
                     fprintf(fptr, "Time: %d-%02d-%02d %02d:%02d:%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
                     fprintf(fptr, "At elevation %f\n", reading.avg);
@@ -690,29 +702,3 @@ void* run_comms(void* args){
     MPI_Ibcast(&blah, 1, MPI_INT, 0, MPI_COMM_WORLD, &send_req);
 }
 
-char* get_ip_addr() {
-    char hostbuffer[256];
-    char *IPbuffer;
-    struct hostent *host_entry;
-    int hostname;
-  
-    // To retrieve hostname
-    hostname = gethostname(hostbuffer, sizeof(hostbuffer));
-  
-    // To retrieve host information
-    host_entry = gethostbyname(hostbuffer);
-  
-    // To convert an Internet network
-    // address into ASCII string
-    IPbuffer = inet_ntoa(*((struct in_addr*)
-                           host_entry->h_addr_list[0]));
-    return IPbuffer;
-}
-
-char* get_processor_name() {
-    char* processor_name;
-    int processor_len;
-    MPI_Get_processor_name(processor_name, &processor_len);
-
-    return processor_name;
-}
