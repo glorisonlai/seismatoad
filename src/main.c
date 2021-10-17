@@ -192,7 +192,7 @@ int main(int argc, char **argv) {
         
         printf("Creating Satellite Thread\n");
         int sat_records = STORED_READINGS;
-        int sat_args[3] = {sat_records, tsunameter_dims[0], tsunameter_dims[1]}; 
+        int sat_args[4] = {sat_records, tsunameter_dims[0], tsunameter_dims[1], tsunameter_threshold}; 
         satellite_terminate = 0;
         satellite_readings = (satellite_reading*)malloc((sat_records) * sizeof(satellite_reading));
         pthread_t satellite_tid;
@@ -471,7 +471,7 @@ void* run_satellite(void* args){
     int last_access = 0;
     int xpos, ypos, elevation;
     int* arguments = (int*)args;
-    int size = arguments[0], width = arguments[1], height = arguments[2];
+    int size = arguments[0], width = arguments[1], height = arguments[2], threshold = arguments[3];
     do{
         // Make this properly FIFO, idk how tbh I think this is probably good enough.
         sleep(1);
@@ -479,7 +479,7 @@ void* run_satellite(void* args){
         srand(time(NULL));
         xpos = rand() % width;
         ypos = rand() % height;
-        elevation = (rand() % 1000) + 6000;
+        elevation = (rand() % 1000) + threshold;
         
         // Implement some quick Mutex here to make sure we avoid race conditions
         pthread_mutex_lock(&satellite_mutex);
@@ -534,7 +534,7 @@ void* check_sentinel(void* arg){
 
 void* run_comms(void* args){
     printf("Comms Thread Starting\n");
-    
+    double start_time = MPI_Wtime();
     // Setup type to receive
 
     MPI_Datatype mp_base_station_info;
@@ -566,10 +566,11 @@ void* run_comms(void* args){
     FILE *fptr;
     fptr = fopen("logs.txt", "w");
     int iter;
+    int false_readings = 0, valid_readings = 0;
 
     fprintf(fptr, "Processor name: %s\n", get_processor_name());
 
-    fprintf(fptr, "IPv4: %s", get_ip_addr());
+    fprintf(fptr, "IPv4: %s\n", get_ip_addr());
 
     for(iter=0; iter<iterations; iter++){
         
@@ -582,7 +583,7 @@ void* run_comms(void* args){
                 int sender_x = tsu % width, sender_y = tsu / width; 
                 satellite_reading most_recent;
                 int max_time = 0;
-                int false_readings = 0, valid_readings = 0;
+                
                 int i;
                 for (i=0; i<STORED_READINGS; i++){
                     if (satellite_readings[i].xpos == sender_x && satellite_readings[i].ypos == sender_y){
@@ -669,6 +670,12 @@ void* run_comms(void* args){
     for(i=0; i<size; i++){
         MPI_Cancel(&comparison_reqs[i]);
     } 
+    // Generate summary:
+    double end_time = MPI_Wtime();
+    fprintf(fptr, "\n\n\n============== SUMMARY ===============\n");
+    fprintf(fptr, "Had %d total events, %d were valid, %d false\n", false_readings + valid_readings, valid_readings, false_readings);
+    fprintf(fptr, "Total time taken in seconds: %.3lf\n", end_time - start_time);
+    fprintf(fptr, "Time per communication loop: %.3lf\n", (end_time - start_time - (2 * iter))/iter);
     
     // Close the file handler
     fclose(fptr);
