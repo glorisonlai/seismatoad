@@ -505,15 +505,19 @@ void* check_sentinel(void* arg){
     printf("Sentinel Thread starting\n");
     char buf[strlen(arg)]; // Construct a buffer of equal length to sentinel
     char* sentinel = arg;  // get the sentinel character
+    
+    // Loop until termination signal or sentinel character entered
     do{
+        // Set up the IO so that it is non-blocking using STDIN_FILENO as an
+        // intermediary for inputs
         fcntl(STDIN_FILENO, F_SETFL, fcntl(STDIN_FILENO, F_GETFL) | O_NONBLOCK);
         sleep(1);
-        int readChars = read(STDIN_FILENO, buf, 4);
+        int readChars = read(STDIN_FILENO, buf, 4); // read into buf and check characters
         if (readChars > 0) {
-            // check whether buf now matches the sentinel value
-            buf[strcspn(buf, "\n")] = 0;
+
+            buf[strcspn(buf, "\n")] = 0; // strip the newline character
             printf("Read in: %s\n", buf);
-            
+            // check whether buf now matches the sentinel value
             if(strcmp(buf, sentinel) == 0){
                 // Mutex may be unnecessary here as both the main and the sentinel threads will only ever set it to 1
                 // However it is better to be safe to avoid a failing terminate.
@@ -521,19 +525,28 @@ void* check_sentinel(void* arg){
                 sentinel_terminate = 1;
                 pthread_mutex_unlock(&sentinel_mutex);
             } else{
+                // If the wrong sentinel value is entered, remind of the right one
                 printf("Enter %s to exit\n", sentinel);
             }
         }
     } while(sentinel_terminate == 0);
+    // Terminate when a signal is sent in/out
     printf("Sentinel thread terminating\n");
     return;
 }
 
 /*+++++++++++++++++++++++++++++ COMMS THREAD +++++++++++++++++++++++++++++*/
 
+/**
+ * Handle the Messaging between Tsunameters and Base Station
+ * @param void* args -> integer array of size 3 with iterations, width and height 
+ * @return -> function is void
+ */
 void* run_comms(void* args){
     printf("Comms Thread Starting\n");
+    // Start timing for log
     double start_time = MPI_Wtime();
+    
     // Setup type to receive
     MPI_Datatype mp_base_station_info;
     int iblock_length[] = {1, 1, 4, 1}; // {float, int, int * neighbours, double}
@@ -547,12 +560,13 @@ void* run_comms(void* args){
                             &mp_base_station_info);
     MPI_Type_commit(&mp_base_station_info);
 
-    // Useful code
+    // Handle the inputs to the function
     int* arguments = (int*)args;
     int iterations = arguments[0], width = arguments[1], height = arguments[2];
     int size = width * height;
     // printf("Iterations: %d\n", iterations);
 
+    // Setup the array of requests, and a location for the sent info to arrive at
     MPI_Request comparison_reqs[size];
     base_station_info comparison_buffer[size];
     int i;
@@ -564,6 +578,8 @@ void* run_comms(void* args){
     // Set up the print file
     FILE *fptr;
     fptr = fopen("logs.txt", "w");
+    
+    // Establish variables for later logging
     int iter;
     int false_readings = 0, valid_readings = 0;
     double total_comm_time = 0;
@@ -586,22 +602,25 @@ void* run_comms(void* args){
     IPbuffer = inet_ntoa(*((struct in_addr*)
                            host_entry->h_addr_list[0]));
     fprintf(fptr, "IPv4: %s\n", IPbuffer);
-
+    
+    // Do the main loop once per specified iteration
     for(iter=0; iter<iterations; iter++){
         
         // Make everything below this point happen for each tsunameter that is sending
         int tsu;
         for(tsu=0; tsu<size; tsu++){
-        
+            
+            // Check if an event has been received from the tsunameter
             if (test_mpi_req(&comparison_reqs[tsu])) {
-                printf("a\n");
+                // Access just the relevant reading
                 struct base_station_info reading = comparison_buffer[tsu];
+                // calculate sender co-ordinates
                 int sender_x = tsu % width, sender_y = tsu / width; 
                 satellite_reading most_recent;
                 int max_time = 0;
-                printf("b\n");
                 
                 int i;
+                // Find the most recent matching satellite reading (if there is one)
                 for (i=0; i<STORED_READINGS; i++){
                     if (satellite_readings[i].xpos == sender_x && satellite_readings[i].ypos == sender_y){
                         if (satellite_readings[i].time > max_time){
@@ -610,6 +629,7 @@ void* run_comms(void* args){
                         }
                     }
                 }
+                // Log the reading:
                 if (max_time == 0) { // Then it's a false reading, as nothing was found
                     printf("False Reading from %d\n", tsu);
                     false_readings += 1;
@@ -682,12 +702,13 @@ void* run_comms(void* args){
             }  
         }
         
-        
+        // Handle termination message from base station:
         if(comms_terminate == 1){
             break;
         }
         sleep(TSUNAMETER_POLL);
     }
+    // Cancel requests, just in case
     for(i=0; i<size; i++){
         MPI_Cancel(&comparison_reqs[i]);
     } 
