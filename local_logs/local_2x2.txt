@@ -1,0 +1,26 @@
+Processor name: fit3143
+IPv4: 127.0.1.1
+O === Logging Valid Reading #1 from tsunameter 1
+Co-ordinates of reporting tsunameter is x: 1 y: 0
+Time: 2430-02-07 11:56:15
+At elevation 6047.765625
+Communication time taken: 1.002
+Matching with neighbours: 3 0
+
+Matching Satellite Reading
+Time: 2157-11-24 22:59:38
+At elevation: 5272.000000
+
+
+Reading Comparison:
+Time Difference: 5 seconds
+Elevation Difference: 775.765625 m
+=====End of Event=====
+
+
+
+
+============== SUMMARY ===============
+Had 1 total events, 1 were valid, 0 false
+Total time taken in seconds: 40.082
+Time per communication (avg): 1.002

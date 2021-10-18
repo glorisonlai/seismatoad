@@ -220,17 +220,9 @@ int main(int argc, char **argv) {
         pthread_create(&comms_tid, NULL, run_comms, &comms_args);
         
         
-        /* Glorison Base temp code -> Moved to run_comms
-        int base_station_buf = 0;
-        MPI_Request send_req;
-        sleep(TSUNAMETER_POLL * 10);
-        printf("TERMINATING...\n");
-        MPI_Ibcast(&base_station_buf, 1, MPI_INT, root, MPI_COMM_WORLD, &send_req);
-        */
-        
         
         //********************** Base termination checking ********************
-        
+        // Just loops until a termination signal is read.
         int terminating = 0;
         do{
             sleep(1);
@@ -249,6 +241,8 @@ int main(int argc, char **argv) {
 
         //********************** Base Station Termination ********************
         // Output the state of the satellite readings at termination
+        // Uncomment this code block if you need it:
+        /*
         printf("Current State of satellite readings:\n");
         int i;
         for (i=0; i<sat_records; i++){
@@ -256,15 +250,17 @@ int main(int argc, char **argv) {
                 i, satellite_readings[i].time, satellite_readings[i].xpos, satellite_readings[i].ypos, satellite_readings[i].elevation);
                 
         }
+        */
+        
         
         // terminate and clean up the altimeter
         pthread_join(satellite_tid, NULL);
         free(satellite_readings);
 
-        // Do a final wait all to make sure all finalised
-        // MPI_Wait_All();
-        // Also terminate and clean up the other two posix threads. Both the MPI Send Recv and the Input scanning
+        // Also terminate and clean up the other two posix threads. 
         pthread_join(sentinel_tid, NULL);
+        // Comms thread is last as join is blocking and comms takes the
+        // longest to finalise
         pthread_join(comms_tid, NULL);
         
     } else {
@@ -434,11 +430,6 @@ int main(int argc, char **argv) {
                         MPI_Isend(&base_station_buf, 1, mp_base_station_info, root, 0,
                                 MPI_COMM_WORLD, &tempstat);
                         printf("Sending completed by %d\n", tsunameter_rank);
-
-                        int n;
-                        for (n=0; n<num_neighbours; n++) {
-                            MPI_Cancel(&recv_reqs[n]);
-                        }
                          
                         break;
                     }
@@ -467,12 +458,15 @@ int main(int argc, char **argv) {
 
 
 /*+++++++++++++++++++++++++++++ SATELLITE THREAD +++++++++++++++++++++++++++++*/
-
+/**
+ * @param void* args -> Integer array of size 4 cast to void*
+ * @return -> function is void
+ */
 void* run_satellite(void* args){
-    // arguments should be array size, then width and height of grid
+    // arguments should be array size, then width and height of grid, then threshold
     printf("Satellite Thread starting\n");
 
-    int last_access = 0;
+    int last_access = 0; // keeps track of whhere to put the next element
     int xpos, ypos, elevation;
     int* arguments = (int*)args;
     int size = arguments[0], width = arguments[1], height = arguments[2], threshold = arguments[3];
@@ -498,19 +492,19 @@ void* run_satellite(void* args){
         
     } while (satellite_terminate == 0);
     printf("Satellite Thread terminating\n");
+    return;
 }
 
 /*+++++++++++++++++++++++++++++ SENTINEL THREAD +++++++++++++++++++++++++++++*/
-
+/**
+ * Periodically check input for a sentinel character, commence termination if seen
+ * @param void* arg -> The sentinel character (or string)
+ * @return -> function is void
+ */
 void* check_sentinel(void* arg){
-    // while not terminating:
-        // scanf() for input
-        // check against sentinel
-        // if sentinel return to main program after setting terminating to 1
-        // Only this thread edits terminating
     printf("Sentinel Thread starting\n");
-    char buf[strlen(arg)];
-    char* sentinel = arg;
+    char buf[strlen(arg)]; // Construct a buffer of equal length to sentinel
+    char* sentinel = arg;  // get the sentinel character
     do{
         fcntl(STDIN_FILENO, F_SETFL, fcntl(STDIN_FILENO, F_GETFL) | O_NONBLOCK);
         sleep(1);
@@ -532,6 +526,7 @@ void* check_sentinel(void* arg){
         }
     } while(sentinel_terminate == 0);
     printf("Sentinel thread terminating\n");
+    return;
 }
 
 /*+++++++++++++++++++++++++++++ COMMS THREAD +++++++++++++++++++++++++++++*/
@@ -556,7 +551,7 @@ void* run_comms(void* args){
     int* arguments = (int*)args;
     int iterations = arguments[0], width = arguments[1], height = arguments[2];
     int size = width * height;
-    printf("Iterations: %d", iterations);
+    // printf("Iterations: %d\n", iterations);
 
     MPI_Request comparison_reqs[size];
     base_station_info comparison_buffer[size];
