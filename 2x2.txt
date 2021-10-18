@@ -1,0 +1,43 @@
+Processor name: monarch-login2
+IPv4: 172.16.226.133
+O === Logging Valid Reading #1 from tsunameter 0
+Co-ordinates of reporting tsunameter is x: 0 y: 0
+Time: 2294-01-01 05:09:19
+At elevation 6042.117188
+Communication time taken: 1.000
+Matching with neighbours: 2 1
+
+Matching Satellite Reading
+Time: 2021-10-18 16:12:45
+At elevation: 5830.000000
+
+
+Reading Comparison:
+Time Difference: 2 seconds
+Elevation Difference: 212.117188 m
+=====End of Event=====
+
+O === Logging Valid Reading #2 from tsunameter 1
+Co-ordinates of reporting tsunameter is x: 1 y: 0
+Time: 2430-02-07 11:37:39
+At elevation 5872.114258
+Communication time taken: 3.001
+Matching with neighbours: 3 0
+
+Matching Satellite Reading
+Time: 2157-11-24 22:41:03
+At elevation: 5607.000000
+
+
+Reading Comparison:
+Time Difference: 4 seconds
+Elevation Difference: 265.114258 m
+=====End of Event=====
+
+
+
+
+============== SUMMARY ===============
+Had 2 total events, 2 were valid, 0 false
+Total time taken in seconds: 40.007
+Time per communication (avg): 2.000
