@@ -478,7 +478,6 @@ void* run_satellite(void* args){
         
     } while (satellite_terminate == 0);
     printf("Satellite Thread terminating\n");
-    return;
 }
 
 /*+++++++++++++++++++++++++++++ SENTINEL THREAD +++++++++++++++++++++++++++++*/
@@ -518,7 +517,6 @@ void* check_sentinel(void* arg){
     } while(sentinel_terminate == 0);
     // Terminate when a signal is sent in/out
     printf("Sentinel thread terminating\n");
-    return;
 }
 
 /*+++++++++++++++++++++++++++++ COMMS THREAD +++++++++++++++++++++++++++++*/

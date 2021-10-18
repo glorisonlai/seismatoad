@@ -2,76 +2,25 @@ Processor name: fit3143
 IPv4: 127.0.1.1
 O === Logging Valid Reading #1 from tsunameter 2
 Co-ordinates of reporting tsunameter is x: 0 y: 1
-Time: 2021-10-18 16:43:11
-At elevation 5081.903320
-Communication time taken: 2.007
+Time: 2021-10-18 17:32:05
+At elevation 5379.482422
+Communication time taken: 1.004
 Matching with neighbours: 0 3
 
 Matching Satellite Reading
-Time: 2021-10-18 16:43:11
-At elevation: 5959.000000
+Time: 2021-10-18 17:32:03
+At elevation: 5473.000000
 
 
 Reading Comparison:
-Time Difference: 0 seconds
-Elevation Difference: 877.096680 m
-=====End of Event=====
-
-O === Logging Valid Reading #2 from tsunameter 2
-Co-ordinates of reporting tsunameter is x: 0 y: 1
-Time: 2021-10-18 16:43:15
-At elevation 5112.078125
-Communication time taken: 2.024
-Matching with neighbours: 0 3
-
-Matching Satellite Reading
-Time: 2021-10-18 16:43:15
-At elevation: 5591.000000
-
-
-Reading Comparison:
-Time Difference: 0 seconds
-Elevation Difference: 478.921875 m
-=====End of Event=====
-
-O === Logging Valid Reading #3 from tsunameter 0
-Co-ordinates of reporting tsunameter is x: 0 y: 0
-Time: 2294-01-01 05:39:51
-At elevation 5319.614258
-Communication time taken: 1.002
-Matching with neighbours: 2 1
-
-Matching Satellite Reading
-Time: 2021-10-18 16:43:16
-At elevation: 5638.000000
-
-
-Reading Comparison:
-Time Difference: 3 seconds
-Elevation Difference: 318.385742 m
-=====End of Event=====
-
-O === Logging Valid Reading #4 from tsunameter 2
-Co-ordinates of reporting tsunameter is x: 0 y: 1
-Time: 2021-10-18 16:43:19
-At elevation 5544.333984
-Communication time taken: 2.005
-Matching with neighbours: 0 3
-
-Matching Satellite Reading
-Time: 2021-10-18 16:43:20
-At elevation: 5450.000000
-
-
-Reading Comparison:
-Time Difference: 1 seconds
-Elevation Difference: 94.333984 m
+Time Difference: 2 seconds
+Elevation Difference: 93.517578 m
 =====End of Event=====
 
 
 
 
 ============== SUMMARY ===============
-Had 4 total events, 4 were valid, 0 false
-Total time taken in seconds: 40.144
-Time per communication (avg): 1.760
+Had 1 total events, 1 were valid, 0 false
+Total time taken in seconds: 40.308
+Time per communication (avg): 1.004
