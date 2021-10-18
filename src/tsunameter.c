@@ -104,6 +104,7 @@ int test_mpi_req(MPI_Request *request) {
  *  @return int* num_neighbours gets updated to number of valid neighbours
  */
 int* get_neighbours(MPI_Comm comm, int ndims, int *num_neighbours) {
+    // Update number of valid neighbours
     *num_neighbours = 0;
     int pot_neighbours[2 * ndims];
     int dir;
@@ -117,6 +118,7 @@ int* get_neighbours(MPI_Comm comm, int ndims, int *num_neighbours) {
         }
     }
 
+    // Fill in heap array with neighbour ranks
     int *neighbours = (int *) malloc(*num_neighbours);
     int i, nbr_ptr = 0;
     for (i = 0; i < 2 * ndims; i++) {
