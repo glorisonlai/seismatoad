@@ -221,11 +221,11 @@ int main(int argc, char **argv) {
         
         
         /* Glorison Base temp code -> Moved to run_comms
-        int blah = 0;
+        int base_station_buf = 0;
         MPI_Request send_req;
         sleep(TSUNAMETER_POLL * 10);
         printf("TERMINATING...\n");
-        MPI_Ibcast(&blah, 1, MPI_INT, root, MPI_COMM_WORLD, &send_req);
+        MPI_Ibcast(&base_station_buf, 1, MPI_INT, root, MPI_COMM_WORLD, &send_req);
         */
         
         
@@ -416,25 +416,29 @@ int main(int argc, char **argv) {
 
                     //printf("Rank: %d, Similar_count: %d\n", tsunameter_rank, similar_count);
                     // Send information to base station
-                    // TODO: SMTH TO DO WITH SIMILAR_COUNT IS MESSED
                     if (similar_count >= 2) {
                         printf("Rank: %d sending to base station\n", tsunameter_rank);
-                        struct base_station_info blah;
-                        blah.avg = get_moving_avg(avg);
-                        printf("Avg is %f\n", blah.avg);
-                        blah.time = time(NULL);
-                        printf("Time: %d\n", blah.time);
-                        blah.neighbours[0] = similar_neighbours[0];
-                        blah.neighbours[1] = similar_neighbours[1];
-                        blah.neighbours[2] = similar_neighbours[2];
-                        blah.neighbours[3] = similar_neighbours[3];
-                        printf("Neighbours: %d %d %d %d\n", blah.neighbours[0], blah.neighbours[1],
-                    blah.neighbours[2], blah.neighbours[3]);
-                        blah.comm_time =  MPI_Wtime() - starttime;
+                        struct base_station_info base_station_buf;
+                        base_station_buf.avg = get_moving_avg(avg);
+                        printf("Avg is %f\n", base_station_buf.avg);
+                        base_station_buf.time = time(NULL);
+                        printf("Time: %d\n", base_station_buf.time);
+                        base_station_buf.neighbours[0] = similar_neighbours[0];
+                        base_station_buf.neighbours[1] = similar_neighbours[1];
+                        base_station_buf.neighbours[2] = similar_neighbours[2];
+                        base_station_buf.neighbours[3] = similar_neighbours[3];
+                        printf("Neighbours: %d %d %d %d\n", base_station_buf.neighbours[0], base_station_buf.neighbours[1],
+                    base_station_buf.neighbours[2], base_station_buf.neighbours[3]);
+                        base_station_buf.comm_time =  MPI_Wtime() - starttime;
                         MPI_Request tempstat;
-                        MPI_Isend(&blah, 1, mp_base_station_info, root, 0,
+                        MPI_Isend(&base_station_buf, 1, mp_base_station_info, root, 0,
                                 MPI_COMM_WORLD, &tempstat);
                         printf("Sending completed by %d\n", tsunameter_rank);
+
+                        int n;
+                        for (n=0; n<num_neighbours; n++) {
+                            MPI_Cancel(&recv_reqs[n]);
+                        }
                          
                         break;
                     }
@@ -705,10 +709,10 @@ void* run_comms(void* args){
     
     // Send a termination broadcast to the tsunameters.
     MPI_Request send_req;
-    int blah = 0;
+    int termination_buf = 0;
     //printf("TERMINATING...\n");
     // Change the global POSIX terminate signal
     comms_terminate = 1;
-    MPI_Ibcast(&blah, 1, MPI_INT, 0, MPI_COMM_WORLD, &send_req);
+    MPI_Ibcast(&termination_buf, 1, MPI_INT, 0, MPI_COMM_WORLD, &send_req);
 }
 
