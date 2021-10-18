@@ -6,12 +6,14 @@
 #include <mpi.h>
 #include <time.h>
 
+// Inner elements of moving average
 typedef struct avg_el
 {
     float value;
     struct avg_el *next;
 } avg_el;
 
+// Struct of moving average
 typedef struct moving_avg
 {
     float avg;
@@ -21,12 +23,14 @@ typedef struct moving_avg
     avg_el *queue_tail;
 } moving_avg;
 
+// Struct of information to send to other tsunameters
 typedef struct tsunameter_reading
 {
     float avg;
     int time;
 } tsunameter_reading;
 
+// Struct of information to send to base station
 typedef struct base_station_info
 {
     float avg;
@@ -50,16 +54,13 @@ void free_moving_avg(moving_avg *avg);
 // Generate random float up to limit
 float generate_float_val(float limit);
 
-void get_rank_at_coord(int *dims, int n_dims, int *coord, int *rank);
-
-void get_coord_at_rank(int *dims, int n_dims, int rank, int *coord);
-
-bool coord_exists(int *dims, int n_dims, int *coord);
-
+// Test if MPI Request has completed
 int test_mpi_req(MPI_Request *request);
 
+// Get adjacent neighbours from rank at ordered cartesian mapping
 int* get_neighbours(MPI_Comm comm, int ndims, int *num_neighbours);
 
+// Create new tsunameter reading
 struct tsunameter_reading *instantiate_tsunameter_reading(float avg, time_t time);
 
 #endif
