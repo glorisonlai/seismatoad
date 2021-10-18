@@ -4,7 +4,7 @@
 `make`
 
 ## Running
-`run <ROWS> <COLS> [<THRESHOLD>] <SHUTDOWN-KEY>`
+`run <ROWS> <COLS> <THRESHOLD> <ITERATIONS> <SHUTDOWN-KEY>`
 
 ## Files
 
